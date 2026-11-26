@@ -11,52 +11,62 @@ if (!defined('HSM_APP')) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-xl">
       <!-- Col 1: Identity & Brand -->
       <div class="space-y-space-md">
-        <div class="flex items-center gap-space-sm">
-          <img
-            alt="Logo Hospital San Marcos"
-            class="h-8 w-auto object-contain brightness-0 invert"
-            src="https://lh3.googleusercontent.com/aida/AEtjO1WKRuW43Ca3Xo-ghJmChxSFJW0uop3LTgfO1f1EWp3vzI9jqI7RBOtAy57wNxmJvJxSmd8XXY2v4IKGUBcuje-WfBuXzdWuUtnIC4AGiU3G5PRNAy-SSHTcGOuKSRvULzeC-NSDJJcJH_jhn9xi907Ad6DJSxeQ2NQRhBUGskw6YpCMx1lsJau5g-1P6Pax_dOK5AS9c2LGRGJySKoJQ2C5xKVPAEl7tNq83SM9eNJ9D24-v1Uc3sbwybcG"
-          />
-          <div class="flex flex-col">
-            <span class="font-headline-sm text-title-md font-bold tracking-tight text-surface">
-              HOSPITAL SAN MARCOS
-            </span>
-            <span class="font-label-sm text-label-sm text-surface-container-highest tracking-widest uppercase">
-              Pasaje • El Oro
-            </span>
-          </div>
+                <div class="flex flex-col items-start gap-space-sm">
+          <a
+            href="<?= e(url('/')) ?>"
+            style="display: block; width: 100%;"
+          >
+            <img
+              src="<?= e(url('/img/Logo.png')) ?>"
+              alt="Hospital San Marcos"
+              style="display: block; height: auto; width: 100%; max-width: 280px; object-fit: contain; filter: brightness(0) invert(1);"
+              
+            >
+          </a>
+          <span class="font-label-sm text-label-sm text-surface-container-highest tracking-widest uppercase">
+            Pasaje • El Oro
+          </span>
         </div>
         <p class="font-body-sm text-body-sm text-surface-container-highest leading-relaxed">
           Atención médica humana, confiable y especializada al servicio de las familias de Pasaje y la provincia de El Oro desde 2007.
         </p>
-        <div class="flex items-center gap-space-sm">
-          <a
-            href="https://instagram.com/hospital_sanmarcosec/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-surface-container-low/10 text-surface hover:bg-primary transition-colors"
-            aria-label="Instagram de Hospital San Marcos"
-          >
-            <span class="material-symbols-outlined text-[18px]">photo_camera</span>
-          </a>
-          <a
-            href="https://facebook.com/hospitalsanmarcospasaje/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-surface-container-low/10 text-surface hover:bg-primary transition-colors"
-            aria-label="Facebook de Hospital San Marcos"
-          >
-            <span class="material-symbols-outlined text-[18px]">public</span>
-          </a>
-          <a
-            class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-surface-container-low/10 text-surface hover:bg-primary transition-colors"
-            href="https://wa.me/593987973511"
-            rel="noopener noreferrer"
-            target="_blank"
-            aria-label="WhatsApp directo con Hospital San Marcos"
-          >
-            <span class="material-symbols-outlined text-[18px]">chat</span>
-          </a>
+                <div>
+          <span class="font-label-sm text-label-sm font-bold text-surface uppercase tracking-widest" style="display: block; margin-bottom: 12px;">
+            Síguenos
+          </span>
+
+          <div class="hsm-social">
+            <a
+              class="hsm-social__link hsm-social__link--instagram"
+              href="https://instagram.com/hospital_sanmarcosec/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram de Hospital San Marcos"
+              title="Instagram"
+            >
+              <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+            </a>
+            <a
+              class="hsm-social__link hsm-social__link--facebook"
+              href="https://facebook.com/hospitalsanmarcospasaje/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook de Hospital San Marcos"
+              title="Facebook"
+            >
+              <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+            </a>
+            <a
+              class="hsm-social__link hsm-social__link--whatsapp"
+              href="https://wa.me/593987973511"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp directo con Hospital San Marcos"
+              title="WhatsApp"
+            >
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+            </a>
+          </div>
         </div>
       </div>
 
@@ -122,19 +132,6 @@ if (!defined('HSM_APP')) {
             </span>
             <a class="hover:text-surface transition-colors" href="tel:0987973511">
               Tel: 098 797 3511
-            </a>
-          </li>
-          <li class="flex items-center gap-space-sm">
-            <span class="material-symbols-outlined text-[20px] text-secondary-fixed shrink-0">
-              chat
-            </span>
-            <a
-              class="hover:text-surface transition-colors"
-              href="https://wa.me/593987973511"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              WhatsApp: +593 98 797 3511
             </a>
           </li>
           <li class="flex items-center gap-space-sm">

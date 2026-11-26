@@ -261,7 +261,7 @@ class Mailer
                     e($code)
                 ),
                 $rows,
-                'Te recomendamos acudir 15 minutos antes de la hora asignada portando tu cédula o pasaporte. Si necesitas reprogramar, comunícate al ' . HOSPITAL_PHONE_DISPLAY . '.'
+                'Te recomendamos acudir 15 minutos antes de la hora asignada portando tu cédula. Si necesitas reprogramar, comunícate al ' . HOSPITAL_PHONE_DISPLAY . '.'
             );
             $text = self::buildPlainText("CITA MEDICA CONFIRMADA ({$code}) — HOSPITAL SAN MARCOS", $rows);
 

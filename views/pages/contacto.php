@@ -457,7 +457,7 @@ $datosCheck  = ($old['datos'] ?? '') === '1';
             </div>
             <a
               class="inline-flex items-center gap-1 font-label-md text-label-md text-primary font-semibold hover:underline"
-              href="https://maps.google.com/?q=Pasaje+El+Oro+Ecuador"
+              href="https://maps.app.goo.gl/wSFw1YrfLKJfjsxN6"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -467,7 +467,13 @@ $datosCheck  = ($old['datos'] ?? '') === '1';
           </div>
 
           <!-- Contenedor de Mapa -->
-          <div class="relative w-full h-64 rounded-2xl overflow-hidden shadow-inner group border border-outline-variant">
+          <a
+            href="https://maps.app.goo.gl/wSFw1YrfLKJfjsxN6"
+            rel="noopener noreferrer"
+            target="_blank"
+            aria-label="Abrir ubicación exacta del Hospital San Marcos en Google Maps"
+            class="block relative w-full h-64 rounded-2xl overflow-hidden shadow-inner group border border-outline-variant"
+          >
             <div
               class="w-full h-full bg-cover bg-center"
               style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB7yrHzQdKgkASaSlaWbDYiROUglFASJv5oxlSzhBBBEnos9GG26KjxxpM_hTiMq59iG8WS-gZT_dneNhNtD_K01zDr8VwlFJicxUAuy0myfIzY_If59IHdtum0E9N7JmO0idGddMVyo49fMLzhj8xmJEfc5HFtU6EOWF85baDQ8PSW4aDwW1CZWG1UvonpTOYsxYcfDAx1InqMhBcDI58WAxv4SuyEjF21SBOV1nQkHJXj2xbdWrtz9g');"
@@ -492,7 +498,7 @@ $datosCheck  = ($old['datos'] ?? '') === '1';
                 check_circle
               </span>
             </div>
-          </div>
+          </a>
 
           <!-- Rutas y accesos principales -->
           <div class="space-y-3 pt-2">

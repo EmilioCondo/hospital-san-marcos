@@ -8,10 +8,11 @@ if (!defined('HSM_APP')) {
 ?>
 <a
   aria-label="Contacto directo por WhatsApp con Hospital San Marcos"
-  class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-secondary text-on-secondary shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 ring-4 ring-secondary/20"
+  class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all duration-300"
+  style="background-color: #25D366; color: #ffffff;"
   href="https://wa.me/593987973511"
   rel="noopener noreferrer"
   target="_blank"
 >
-  <span class="material-symbols-outlined text-[28px]">chat</span>
+  <i class="fa-brands fa-whatsapp" style="font-size: 34px;" aria-hidden="true"></i>
 </a>

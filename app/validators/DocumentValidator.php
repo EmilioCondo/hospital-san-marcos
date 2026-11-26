@@ -3,8 +3,7 @@ declare(strict_types=1);
 
 /**
  * Validador de documento de identidad del paciente:
- * - Cédula ecuatoriana (10 dígitos con provincia válida y dígito verificador módulo 10)
- * - Pasaporte (alfanumérico internacional de 5 a 20 caracteres)
+ * - Exclusivamente Cédula ecuatoriana (10 dígitos con provincia válida y dígito verificador módulo 10)
  */
 
 if (!defined('HSM_APP')) {
@@ -19,42 +18,31 @@ class DocumentValidator
      */
     public static function validate(string $raw): array
     {
-        // Eliminar espacios y guiones intermedios y convertir a mayúsculas
-        $cleaned = strtoupper((string) preg_replace('/[\s\-]+/u', '', trim($raw)));
+        // Eliminar espacios y guiones intermedios
+        $cleaned = (string) preg_replace('/[\s\-]+/u', '', trim($raw));
 
         if ($cleaned === '') {
             return [
                 'valid'      => false,
                 'type'       => 'cedula',
                 'normalized' => '',
-                'error'      => 'Ingresa el número de cédula o pasaporte del paciente.',
+                'error'      => 'Ingresa el número de cédula ecuatoriana del paciente.',
             ];
         }
 
-        // Caso 1: Exactamente 10 dígitos numéricos -> Validar como cédula ecuatoriana
-        if (preg_match('/^\d{10}$/', $cleaned) === 1) {
-            if (self::isValidEcuadorianCedula($cleaned)) {
-                return [
-                    'valid'      => true,
-                    'type'       => 'cedula',
-                    'normalized' => $cleaned,
-                    'error'      => null,
-                ];
-            }
-
+        if (preg_match('/^\d{10}$/', $cleaned) !== 1) {
             return [
                 'valid'      => false,
                 'type'       => 'cedula',
                 'normalized' => $cleaned,
-                'error'      => 'El número de cédula ecuatoriana no es válido. Verifica los 10 dígitos o ingresa tu pasaporte.',
+                'error'      => 'Ingresa una cédula ecuatoriana válida de 10 dígitos.',
             ];
         }
 
-        // Caso 2: Pasaporte (alfanumérico de 5 a 20 caracteres, o numérico extranjero de longitud distinta de 10)
-        if (preg_match('/^[A-Z0-9]{5,20}$/', $cleaned) === 1 && preg_match('/^0+$/', $cleaned) !== 1) {
+        if (self::isValidEcuadorianCedula($cleaned)) {
             return [
                 'valid'      => true,
-                'type'       => 'pasaporte',
+                'type'       => 'cedula',
                 'normalized' => $cleaned,
                 'error'      => null,
             ];
@@ -64,7 +52,7 @@ class DocumentValidator
             'valid'      => false,
             'type'       => 'cedula',
             'normalized' => $cleaned,
-            'error'      => 'Ingresa una cédula ecuatoriana (10 dígitos) o un pasaporte válido (5 a 20 caracteres).',
+            'error'      => 'El número de cédula ecuatoriana no es válido. Verifica los 10 dígitos.',
         ];
     }
 

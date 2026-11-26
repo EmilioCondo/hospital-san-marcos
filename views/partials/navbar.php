@@ -17,14 +17,14 @@ $navLinks = [
 ?>
 <header class="fixed top-0 left-0 right-0 z-50 bg-surface">
   <!-- Top Utility Contact Bar -->
-  <div class="bg-primary-container text-white py-1.5 px-gutter">
+  <div id="top-utility-bar" class="top-utility-bar bg-primary-container text-white py-1.5 px-gutter">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-space-sm font-label-sm text-label-sm">
       <div class="flex items-center gap-space-md">
         <div class="flex items-center gap-1.5 text-surface-container-highest">
   <span class="material-symbols-outlined text-[16px]">location_on</span>
   <a
     class="hover:text-surface transition-colors"
-    href="https://maps.app.goo.gl/AVhPgjEuETCKKcKd6"
+    href="https://maps.app.goo.gl/wSFw1YrfLKJfjsxN6"
     target="_blank"
     rel="noopener noreferrer"
   >
@@ -60,52 +60,17 @@ $navLinks = [
   <!-- Main Navigation Bar -->
   <div class="bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.06)] border-b border-outline-variant">
     <div class="h-20 max-w-7xl mx-auto px-gutter flex items-center justify-between">
-      <!-- Logo & Brand Name -->
+<!-- Logo & Brand Name -->
       <a
         href="<?= e(url('/')) ?>"
-        class="flex items-center gap-3 group shrink-0"
+        class="flex items-center group shrink-0"
       >
-        <svg
-          viewBox="0 0 48 40"
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-12 h-10 shrink-0 transition-transform group-hover:scale-105"
-          aria-hidden="true"
+        <img
+          src="<?= e(url('/img/Logo.png')) ?>"
+          alt="Hospital San Marcos"
+          class="transition-transform group-hover:scale-105"
+          style="height: 72px; width: auto; max-width: min(280px, 60vw); object-fit: contain;"
         >
-          <circle cx="8" cy="8" r="4" fill="var(--color-primary-container)" />
-          <path
-            d="M3 33C-1 21 3 14 12 13c-4 5-3 13 3 18z"
-            fill="var(--color-primary-container)"
-          />
-          <circle cx="40" cy="8" r="4" fill="var(--color-secondary)" />
-          <path
-            d="M45 33c4-12 0-19-9-20 4 5 3 13-3 18z"
-            fill="var(--color-secondary)"
-          />
-          <rect x="20" y="9" width="8" height="24" rx="1.5" fill="var(--color-tertiary)" />
-          <rect x="12" y="17" width="24" height="8" rx="1.5" fill="var(--color-tertiary)" />
-        </svg>
-
-        <div class="flex flex-col items-center justify-center">
-          <div class="flex items-center gap-1.5 w-full">
-            <span class="h-px flex-1 bg-[#91C34A]"></span>
-
-            <span
-              class="text-[11px] font-medium tracking-[0.04em] text-[#91C34A]"
-              style="font-family: Figtree, sans-serif;"
-            >
-              HOSPITAL
-            </span>
-
-            <span class="h-px flex-1 bg-[#91C34A]"></span>
-          </div>
-
-          <span
-            class="text-[22px] font-bold uppercase leading-none tracking-tight text-[#36B8C5]"
-            style="font-family: Figtree, sans-serif;"
-          >
-            SAN MARCOS
-          </span>
-        </div>
       </a>
 
       <!-- Desktop Nav Links -->

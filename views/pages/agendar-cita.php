@@ -110,11 +110,11 @@ $privacyChecked = ($old['privacidad'] ?? '') === '1';
     </div>
   </section>
 
-  <!-- Main Workflow & Assistant Section -->
+  <!-- Main Workflow Section -->
   <section class="w-full pb-space-2xl">
     <div class="max-w-7xl mx-auto px-gutter">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <!-- Left: Stepper + Form Multi-step Container (8 cols) -->
+        <!-- Columna izquierda: formulario -->
         <div class="lg:col-span-8 space-y-6">
           <?php if ($confirmedAppointment !== null): ?>
           <!-- TARJETA DE CONFIRMACIÓN REAL DE SOLICITUD DE CITA -->
@@ -184,7 +184,7 @@ $privacyChecked = ($old['privacidad'] ?? '') === '1';
                       <?= e((string) $confirmedAppointment['patient_name']) ?>
                     </p>
                     <p class="font-body-sm text-body-sm text-on-surface-variant">
-                      <?= ($confirmedAppointment['patient_doc_type'] ?? 'cedula') === 'pasaporte' ? 'Pasaporte' : 'Cédula' ?>: <?= e((string) $confirmedAppointment['patient_id_doc']) ?> • Teléfono: <?= e((string) $confirmedAppointment['patient_phone']) ?>
+                      Cédula: <?= e((string) $confirmedAppointment['patient_id_doc']) ?> • Teléfono: <?= e((string) $confirmedAppointment['patient_phone']) ?>
                     </p>
                   </div>
                   <div class="font-body-sm text-body-sm text-outline">
@@ -648,16 +648,18 @@ $privacyChecked = ($old['privacidad'] ?? '') === '1';
 
                 <div class="space-y-2">
                   <label class="block font-title-md text-body-md font-semibold text-on-surface" for="field-document">
-                    Cédula o Pasaporte <span class="text-tertiary">*</span>
+                    Cédula ecuatoriana <span class="text-tertiary">*</span>
                   </label>
                   <div class="relative">
                     <input
                       class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md py-3.5 px-4 rounded-xl focus-primary transition-colors pl-12 border <?= isset($errors['paciente_documento']) ? 'border-error' : 'border-outline-variant' ?>"
                       id="field-document"
                       name="paciente_documento"
-                      placeholder="Ej. 0701234567 o AB123456"
+                      placeholder="Ej. 0701234567"
                       type="text"
-                      maxlength="20"
+                      inputmode="numeric"
+                      pattern="\d{10}"
+                      maxlength="10"
                       value="<?= e($documentValue) ?>"
                       required
                     />
@@ -837,7 +839,7 @@ $privacyChecked = ($old['privacidad'] ?? '') === '1';
                         <?= e($fullnameValue !== '' ? $fullnameValue : 'Pendiente de ingresar') ?>
                       </p>
                       <p id="summary-document" class="font-body-sm text-body-sm text-on-surface-variant">
-                        Documento: <?= e($documentValue !== '' ? $documentValue : 'Pendiente de ingresar') ?>
+                        Cédula: <?= e($documentValue !== '' ? $documentValue : 'Pendiente de ingresar') ?>
                       </p>
                       <p id="summary-phone" class="font-body-sm text-body-sm text-on-surface-variant">
                         Teléfono / WhatsApp: <?= e($phoneValue !== '' ? $phoneValue : 'Pendiente de ingresar') ?>
@@ -913,143 +915,31 @@ $privacyChecked = ($old['privacidad'] ?? '') === '1';
             </form>
           </div>
           <?php endif; ?>
+        </div>
+        <!-- Fin columna izquierda -->
 
+        <!-- Columna derecha: privacidad y horarios -->
+        <div class="lg:col-span-4 space-y-6">
           <!-- Privacy & Security Guarantee Banner -->
-          <div class="p-6 rounded-2xl bg-surface-container-low flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-outline-variant">
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+          <div class="p-6 rounded-2xl bg-surface-container-low flex flex-col gap-4 border border-outline-variant">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-[22px]">lock</span>
               </div>
-              <div>
-                <h4 class="font-title-md text-title-md font-bold text-on-surface">
-                  Compromiso de Privacidad y Soporte Directo
-                </h4>
-                <p class="font-body-sm text-body-sm text-on-surface-variant max-w-xl">
-                  Este formulario solicita únicamente datos de contacto para coordinación administrativa. En cumplimiento de normativas de salud, <strong>no se solicitan historiales clínicos ni diagnósticos reservados</strong> por este canal web.
-                </p>
-              </div>
+              <h4 class="font-title-md text-body-md font-bold text-on-surface">
+                Compromiso de Privacidad y Soporte Directo
+              </h4>
             </div>
+            <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Este formulario solicita únicamente datos de contacto para coordinación administrativa. En cumplimiento de normativas de salud, <strong>no se solicitan historiales clínicos ni diagnósticos reservados</strong> por este canal web.
+            </p>
             <a
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-container-highest text-primary hover:bg-primary-container hover:text-on-primary transition-colors font-title-md text-label-md font-semibold whitespace-nowrap self-stretch sm:self-auto justify-center border border-outline-variant"
+              class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-surface-container-highest text-primary hover:bg-primary-container hover:text-on-primary transition-colors font-title-md text-label-md font-semibold border border-outline-variant"
               href="tel:0987973511"
             >
               <span class="material-symbols-outlined text-[18px]">call</span>
               <span>098 797 3511</span>
             </a>
-          </div>
-        </div>
-
-        <!-- Right: Asistente Virtual San Marcos & Hospital Guidance (4 cols) -->
-        <div class="lg:col-span-4 space-y-6">
-          <!-- Virtual Assistant Institutional Widget -->
-          <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm space-y-5 border border-outline-variant">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
-                  <span class="material-symbols-outlined text-[22px]">smart_toy</span>
-                </div>
-                <div>
-                  <h3 class="font-title-md text-title-md font-bold text-on-surface">
-                    Asistente San Marcos
-                  </h3>
-                  <span class="font-label-sm text-label-sm text-secondary font-semibold flex items-center gap-1">
-                    <span class="w-2 h-2 rounded-full bg-secondary inline-block"></span>
-                    Orientación en línea
-                  </span>
-                </div>
-              </div>
-              <span class="text-outline text-label-sm font-semibold uppercase">Pasaje</span>
-            </div>
-            <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-              ¿Necesitas ayuda rápida con tu cita o encontrar una especialidad médica adecuada para tus síntomas?
-            </p>
-
-            <!-- Interactive Quick Options -->
-            <div class="space-y-2.5">
-              <button
-                class="w-full text-left p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex items-center justify-between group border border-outline-variant"
-                data-assistant-topic="especialidades"
-                type="button"
-              >
-                <div class="flex items-center gap-2.5">
-                  <span class="material-symbols-outlined text-[18px] text-primary">stethoscope</span>
-                  <span class="font-title-md text-body-sm font-medium text-on-surface">
-                    Encontrar especialidades médicas
-                  </span>
-                </div>
-                <span class="material-symbols-outlined text-[16px] text-outline group-hover:translate-x-0.5 transition-transform">
-                  chevron_right
-                </span>
-              </button>
-              <button
-                class="w-full text-left p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex items-center justify-between group border border-outline-variant"
-                data-assistant-topic="laboratorio"
-                type="button"
-              >
-                <div class="flex items-center gap-2.5">
-                  <span class="material-symbols-outlined text-[18px] text-primary">science</span>
-                  <span class="font-title-md text-body-sm font-medium text-on-surface">
-                    Requisitos para exámenes de laboratorio
-                  </span>
-                </div>
-                <span class="material-symbols-outlined text-[16px] text-outline group-hover:translate-x-0.5 transition-transform">
-                  chevron_right
-                </span>
-              </button>
-              <button
-                class="w-full text-left p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex items-center justify-between group border border-outline-variant"
-                data-assistant-topic="paso-a-paso"
-                type="button"
-              >
-                <div class="flex items-center gap-2.5">
-                  <span class="material-symbols-outlined text-[18px] text-primary">help_outline</span>
-                  <span class="font-title-md text-body-sm font-medium text-on-surface">
-                    Cómo solicitar una cita paso a paso
-                  </span>
-                </div>
-                <span class="material-symbols-outlined text-[16px] text-outline group-hover:translate-x-0.5 transition-transform">
-                  chevron_right
-                </span>
-              </button>
-              <a
-                class="w-full p-3.5 rounded-xl bg-secondary/10 hover:bg-secondary/20 transition-all flex items-center justify-between text-secondary border border-secondary/20"
-                href="https://wa.me/593987973511"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <div class="flex items-center gap-2.5">
-                  <span class="material-symbols-outlined text-[18px]">chat</span>
-                  <span class="font-title-md text-body-sm font-bold">
-                    Hablar directamente por WhatsApp
-                  </span>
-                </div>
-                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
-              </a>
-            </div>
-
-            <!-- Aviso visible de disponibilidad próxima del Asistente San Marcos -->
-            <div
-              id="assistant-output-box"
-              class="p-4 rounded-xl bg-surface-container-high transition-all space-y-2 border border-outline-variant animate-fadeIn"
-            >
-              <div class="flex items-center justify-between">
-                <span id="assistant-output-title" class="font-label-sm text-label-sm font-bold text-primary uppercase flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-[16px]">info</span>
-                  <span>Función en Integración</span>
-                </span>
-              </div>
-              <p id="assistant-output-text" class="font-body-sm text-body-sm text-on-surface leading-snug">
-                El asistente virtual interactivo del Hospital San Marcos estará disponible próximamente. Para recibir orientación inmediata sobre especialidades, requisitos o citas, comuníquese mediante WhatsApp o al 098 797 3511.
-              </p>
-            </div>
-
-            <!-- Ethical Disclaimer -->
-            <div class="pt-4 border-t border-surface-container-high flex items-start gap-2.5 text-outline">
-              <span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">gavel</span>
-              <p class="font-body-sm text-label-sm leading-tight">
-                <strong>Advertencia ética:</strong> Este asistente brinda exclusivamente orientación administrativa y de navegación. <strong>No emite diagnósticos médicos ni sustituye la consulta médica presencial o de urgencia.</strong>
-              </p>
-            </div>
           </div>
 
           <!-- Regional Hospital Service Card -->
@@ -1091,6 +981,7 @@ $privacyChecked = ($old['privacidad'] ?? '') === '1';
             </div>
           </div>
         </div>
+        <!-- Fin columna derecha -->
       </div>
     </div>
   </section>

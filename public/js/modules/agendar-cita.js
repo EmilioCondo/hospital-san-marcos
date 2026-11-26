@@ -1,61 +1,14 @@
 /**
- * Módulo de interacciones para la página Agendar Cita y el Asistente San Marcos
+ * Módulo de interacciones para la página Agendar Cita
  * - Filtrado dinámico de médicos según la especialidad seleccionada (o sin preferencia)
  * - Navegación validada de 4 pasos (Atención, Fecha y turno, Datos paciente, Revisión)
- * - Validación cliente sincronizada con el backend PHP (incluyendo Cédula módulo 10 y Pasaporte)
+ * - Validación cliente sincronizada con el backend PHP (Cédula ecuatoriana módulo 10)
  * - Actualización en vivo del resumen en el Paso 4 y prevención de doble envío
  */
 
 export function initAgendarCitaPage() {
   const form = document.getElementById('appointment-form');
   const stepPanels = Array.from(document.querySelectorAll('[data-step-panel]'));
-
-  // Nodos del Asistente San Marcos (presentes tanto en formulario como en vista de confirmación)
-  const assistantButtons = Array.from(document.querySelectorAll('[data-assistant-topic]'));
-  const assistantOutputTitle = document.getElementById('assistant-output-title');
-  const assistantOutputText = document.getElementById('assistant-output-text');
-
-  const assistantMessages = {
-    especialidades: {
-      title: 'Orientación de Especialidades — Próximamente',
-      text: 'El asistente interactivo para recomendación de especialidades estará disponible próximamente. Mientras tanto, puede consultar nuestro catálogo de 17 especialidades o comunicarse al 098 797 3511.',
-    },
-    laboratorio: {
-      title: 'Requisitos de Laboratorio — Próximamente',
-      text: 'La consulta automatizada de requisitos de laboratorio estará disponible próximamente. Para indicaciones de ayuno o preparación previa, escríbanos por WhatsApp oficial al 098 797 3511.',
-    },
-    'paso-a-paso': {
-      title: 'Guía de Agendamiento — Próximamente',
-      text: 'El asistente guiado paso a paso estará disponible próximamente. Puede recorrer los 4 pasos de esta pantalla para registrar su solicitud y confirmar su turno con Admisión.',
-    },
-  };
-
-  assistantButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const topic = btn.getAttribute('data-assistant-topic') || '';
-      const info = assistantMessages[topic];
-      if (!info) return;
-
-      assistantButtons.forEach((b) => {
-        b.classList.remove('ring-2', 'ring-primary-container', 'bg-surface-container');
-      });
-      btn.classList.add('ring-2', 'ring-primary-container', 'bg-surface-container');
-
-      if (assistantOutputTitle) {
-        assistantOutputTitle.textContent = '';
-        const iconSpan = document.createElement('span');
-        iconSpan.className = 'material-symbols-outlined text-[16px]';
-        iconSpan.textContent = 'info';
-        const textSpan = document.createElement('span');
-        textSpan.textContent = info.title;
-        assistantOutputTitle.appendChild(iconSpan);
-        assistantOutputTitle.appendChild(textSpan);
-      }
-      if (assistantOutputText) {
-        assistantOutputText.textContent = info.text;
-      }
-    });
-  });
 
   if (!form || stepPanels.length === 0) {
     return;
@@ -154,19 +107,16 @@ export function initAgendarCitaPage() {
   }
 
   function validateDocumentValue(raw) {
-    const cleaned = (raw || '').trim().replace(/[\s\-]+/g, '').toUpperCase();
+    const cleaned = (raw || '').trim().replace(/[\s\-]+/g, '');
     if (!cleaned) {
-      return 'Ingresa el número de cédula o pasaporte del paciente.';
+      return 'Ingresa el número de cédula ecuatoriana del paciente.';
     }
-    if (/^\d{10}$/.test(cleaned)) {
-      return isValidEcuadorianCedula(cleaned)
-        ? ''
-        : 'El número de cédula ecuatoriana no es válido. Verifica los 10 dígitos o ingresa tu pasaporte.';
+    if (!/^\d{10}$/.test(cleaned)) {
+      return 'Ingresa una cédula ecuatoriana válida de 10 dígitos.';
     }
-    if (/^[A-Z0-9]{5,20}$/.test(cleaned) && !/^0+$/.test(cleaned)) {
-      return '';
-    }
-    return 'Ingresa una cédula ecuatoriana (10 dígitos) o un pasaporte válido (5 a 20 caracteres).';
+    return isValidEcuadorianCedula(cleaned)
+      ? ''
+      : 'El número de cédula ecuatoriana no es válido. Verifica los 10 dígitos.';
   }
 
   function validatePhoneValue(raw) {
@@ -373,7 +323,7 @@ export function initAgendarCitaPage() {
 
     const docNumber =
       documentInput && documentInput.value.trim() !== ''
-        ? documentInput.value.trim().toUpperCase()
+        ? documentInput.value.trim()
         : 'Pendiente de ingresar';
 
     const phone =
@@ -393,7 +343,7 @@ export function initAgendarCitaPage() {
     if (summaryDate) summaryDate.textContent = selectedDate;
     if (summaryShift) summaryShift.textContent = selectedShift;
     if (summaryFullname) summaryFullname.textContent = fullName;
-    if (summaryDocument) summaryDocument.textContent = `Documento: ${docNumber}`;
+    if (summaryDocument) summaryDocument.textContent = `Cédula: ${docNumber}`;
     if (summaryPhone) summaryPhone.textContent = `Teléfono / WhatsApp: ${phone}`;
     if (summaryEmail) summaryEmail.textContent = email;
 

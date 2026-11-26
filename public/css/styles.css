@@ -2919,3 +2919,48 @@
 .focus-primary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .link-primary { color: var(--color-primary); text-decoration: underline; }
 .link-primary:hover { color: var(--color-primary); text-decoration: underline; }
+
+/* Barra superior utilitaria del navbar: oculta suavemente al hacer scroll hacia abajo */
+.top-utility-bar {
+  max-height: 5rem;
+  overflow: hidden;
+  opacity: 1;
+  transition: max-height 0.28s ease, opacity 0.22s ease, padding-top 0.28s ease, padding-bottom 0.28s ease;
+}
+.top-utility-bar.is-hidden {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  pointer-events: none;
+}
+
+/* Redes sociales del footer */
+.hsm-social {
+  display: flex;
+  gap: 12px;
+}
+.hsm-social__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(200, 231, 245, 0.15);
+  background: rgba(229, 246, 255, 0.06);
+  color: var(--color-surface-container-highest);
+  font-size: 21px;
+  transition: transform 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+.hsm-social__link:hover,
+.hsm-social__link:focus-visible {
+  transform: translateY(-4px);
+  background: var(--color-primary-container);
+  border-color: var(--color-primary-container);
+  color: var(--color-inverse-surface);
+}
+.hsm-social__link:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}

@@ -65,7 +65,7 @@ C:\xampp\htdocs\hospital-san-marcos\
 │           ├── especialidades.js     # Buscador en tiempo real y 6 filtros de Especialidades
 │           ├── equipo-medico.js      # Buscador, 6 pestañas de categorías, ?search= y modal de perfil médico
 │           ├── servicios.js          # 4 pestañas operativas, smooth scroll y acordeón de 5 FAQs
-│           ├── agendar-cita.js       # Flujo visual de 4 pasos, resumen en vivo y Asistente San Marcos
+│           ├── agendar-cita.js       # Flujo visual de 4 pasos, resumen en vivo
 │           └── contacto.js           # Validaciones visuales y bloqueo de envío del formulario
 └── views/
     ├── .htaccess                     # Bloqueo de acceso HTTP directo a las plantillas (403 Forbidden)
@@ -84,7 +84,7 @@ C:\xampp\htdocs\hospital-san-marcos\
         ├── especialidades.php        # Página Especialidades
         ├── equipo-medico.php         # Página Equipo Médico
         ├── contacto.php              # Página Contacto
-        └── agendar-cita.php          # Página Agendar Cita + Asistente San Marcos
+        └── agendar-cita.php          # Página Agendar Cita
 ```
 
 ---
@@ -114,7 +114,7 @@ C:\xampp\htdocs\hospital-san-marcos\
 | **Especialidades** | `http://localhost/hospital-san-marcos/especialidades` | Cartera de 17 especialidades médicas con buscador en tiempo real y 6 filtros de categoría. |
 | **Equipo Médico** | `http://localhost/hospital-san-marcos/equipo-medico` | Directorio de 29 profesionales con buscador, 6 categorías, soporte `?search=` y modal de perfil. |
 | **Contacto** | `http://localhost/hospital-san-marcos/contacto` | Tarjetas de contacto rápido, formulario (envío deshabilitado), mapa, rutas y redes oficiales. |
-| **Agendar Cita** | `http://localhost/hospital-san-marcos/agendar-cita` | Flujo interactivo de 4 pasos (confirmación deshabilitada), soporte `?doctor=` y Asistente San Marcos. |
+| **Agendar Cita** | `http://localhost/hospital-san-marcos/agendar-cita` | Flujo interactivo de 4 pasos (confirmación deshabilitada), soporte `?doctor=`. |
 
 ---
 
@@ -174,7 +174,7 @@ El archivo CSS compilado (`public/css/styles.css`) ya incluye todos los estilos 
 - **Página Especialidades interactiva:** Buscador en tiempo real insensible a mayúsculas y tildes, 6 filtros de categorías, contador dinámico y estado vacío con botón de restablecimiento.
 - **Página Equipo Médico interactiva:** Buscador por nombre/especialidad, 6 pestañas con conteos dinámicos, soporte de parámetro `?search=` con equivalencias clínicas y modal de perfil médico (cierre por botón, tecla `Escape` o clic fuera).
 - **Página Servicios interactiva:** 4 pestañas de fichas operativas, desplazamiento suave (*smooth scroll*) desde las tarjetas de servicios y acordeón de 5 preguntas frecuentes.
-- **Flujo visual de Agendar Cita y Asistente San Marcos:** Navegación interactiva entre los 4 pasos, barra de progreso, selector visual de turno, resumen dinámico en el Paso 4, preselección validada de médico mediante `?doctor=`, botón final deshabilitado y aviso de disponibilidad próxima.
+- **Flujo visual de Agendar Cita:** Navegación interactiva entre los 4 pasos, barra de progreso, selector visual de turno, resumen dinámico en el Paso 4, preselección validada de médico mediante `?doctor=`, botón final deshabilitado y aviso de disponibilidad próxima.
 - **Página Contacto:** Diseño completo, validaciones visuales en cliente, botón de envío deshabilitado y aviso de disponibilidad próxima.
 - **Seguridad reforzada:** Protección `.htaccess` (`403 Forbidden`) y constante `HSM_APP` en directorios internos (`app/`, `config/`, `database/`, `views/`), escape sistemático XSS con `e()`, validación de parámetros URL (`sanitize_query_param()`) y enlaces de WhatsApp libres de datos personales o médicos del paciente.
 
@@ -185,8 +185,7 @@ El archivo CSS compilado (`public/css/styles.css`) ya incluye todos los estilos 
 1. Creación e integración de la base de datos MySQL/MariaDB (`hospital_san_marcos`).
 2. Procesamiento y almacenamiento real de solicitudes en **Agendar Cita** y gestión de horarios/disponibilidad médica.
 3. Procesamiento y almacenamiento/envío de mensajes del formulario de **Contacto**.
-4. Integración funcional del chatbot **Asistente San Marcos**.
-5. Sistema de autenticación y **Panel Administrativo** para gestionar médicos, especialidades, servicios, citas y mensajes de contacto.
+4. Sistema de autenticación y **Panel Administrativo** para gestionar médicos, especialidades, servicios, citas y mensajes de contacto.
 
 ---
 
@@ -198,7 +197,5 @@ El archivo CSS compilado (`public/css/styles.css`) ya incluye todos los estilos 
    - Reemplaza internamente el contenido de `DoctorRepository::getAll()`, `SpecialtyRepository::getAll()`, `ServiceRepository::getAll()` y `FaqRepository::getAll()` por consultas PDO `SELECT`. **No tendrás que modificar ninguna vista en `views/pages/`**.
 2. **Agendamiento de Citas y Formulario de Contacto:**
    - Crea controladores POST dedicados con protección **CSRF Token** en sesión (`$_SESSION['csrf_token']`), validación estricta en servidor y consultas preparadas `INSERT INTO appointments` / `INSERT INTO contact_messages`.
-3. **Asistente San Marcos (Chatbot):**
-   - Implementa un endpoint backend en PHP que reciba la consulta del usuario y consulte un árbol de decisión local o una API de IA desde el servidor (manteniendo cualquier API Key en variables de entorno fuera del navegador).
-4. **Panel Administrativo:**
+3. **Panel Administrativo:**
    - Implementa autenticación con `password_hash()` / `password_verify()`, regeneración de sesión (`session_regenerate_id(true)`) y control de acceso basado en roles para administrar los catálogos hospitalarios.
