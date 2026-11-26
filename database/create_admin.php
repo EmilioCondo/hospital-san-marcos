@@ -2,11 +2,11 @@
 declare(strict_types=1);
 
 /**
- * Script CLI local para crear o actualizar un usuario administrativo en MySQL.
+ * Script CLI local para crear o actualizar un usuario administrativo en MySQL (tabla usuarios_admin).
  * Uso interactivo:
  *   C:\xampp\php\php.exe C:\xampp\htdocs\hospital-san-marcos\database\create_admin.php
  *
- * Uso por tubería (sin exponer la contraseña en el historial de comandos):
+ * Uso por tubería:
  *   php database/create_admin.php --username=admin --email=admin@hospitalsanmarcos.com.ec --role=admin --password-stdin
  */
 
@@ -76,10 +76,9 @@ if ($errors !== []) {
 }
 
 $hash = password_hash($password, PASSWORD_BCRYPT);
-$pdo  = Database::getConnection();
 
 $existing = Database::fetchAll(
-    'SELECT id, username, email FROM admin_users WHERE username = :u OR email = :e LIMIT 1',
+    'SELECT id, usuario FROM usuarios_admin WHERE usuario = :u OR correo = :e LIMIT 1',
     ['u' => $username, 'e' => $email]
 );
 
@@ -87,15 +86,15 @@ if ($existing !== []) {
     if (!isset($opts['update'])) {
         fwrite(
             STDERR,
-            "\nYa existe un usuario con ese username o correo (ID #{$existing[0]['id']}: {$existing[0]['username']}).\n"
+            "\nYa existe un usuario con ese nombre o correo (ID #{$existing[0]['id']}: {$existing[0]['usuario']}).\n"
             . "Agrega la bandera --update si deseas actualizar su contraseña y rol.\n"
         );
         exit(1);
     }
 
     Database::execute(
-        'UPDATE admin_users
-            SET username = :u, email = :e, password_hash = :h, role = :r, is_active = 1
+        'UPDATE usuarios_admin
+            SET usuario = :u, correo = :e, clave_hash = :h, rol = :r, activo = 1
           WHERE id = :id',
         [
             'u'  => $username,
@@ -111,7 +110,7 @@ if ($existing !== []) {
 }
 
 Database::execute(
-    'INSERT INTO admin_users (username, email, password_hash, role, is_active)
+    'INSERT INTO usuarios_admin (usuario, correo, clave_hash, rol, activo)
      VALUES (:u, :e, :h, :r, 1)',
     [
         'u' => $username,

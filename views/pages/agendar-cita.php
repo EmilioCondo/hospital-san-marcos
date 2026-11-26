@@ -33,15 +33,10 @@ if ($old !== []) {
     $selectedDoctorSlug    = (string) ($old['medico'] ?? '');
 } elseif ($doctorFromUrl !== '') {
     $matchedDoctor = DoctorRepository::findForBooking($doctorFromUrl);
-    if ($matchedDoctor !== null) {
-        $selectedDoctorSlug  = (string) $matchedDoctor['id'];
-        $selectedDoctorLabel = 'Dr./Dra. ' . $matchedDoctor['name'] . ' — ' . $matchedDoctor['specialty'];
-        if ($matchedDoctor['primary_specialty_slug'] !== null) {
-            $selectedSpecialtySlug = (string) $matchedDoctor['primary_specialty_slug'];
-        } else {
-            $selectedSpecialtySlug  = 'especialista-directo';
-            $selectedSpecialtyLabel = 'Valoración especializada — ' . $matchedDoctor['specialty'];
-        }
+    if ($matchedDoctor !== null && $matchedDoctor['primary_specialty_slug'] !== null) {
+        $selectedDoctorSlug    = (string) $matchedDoctor['id'];
+        $selectedDoctorLabel   = $matchedDoctor['name'] . ' — ' . $matchedDoctor['specialty'];
+        $selectedSpecialtySlug = (string) $matchedDoctor['primary_specialty_slug'];
     }
 } elseif ($specialtyFromUrl !== '') {
     $matchedSpec = SpecialtyRepository::findForBooking($specialtyFromUrl);
@@ -50,24 +45,21 @@ if ($old !== []) {
     }
 }
 
-if ($selectedSpecialtySlug === 'servicio:laboratorio') {
-    $selectedSpecialtyLabel = 'Laboratorio Clínico';
-} elseif ($selectedSpecialtySlug === 'servicio:imagen') {
-    $selectedSpecialtyLabel = 'Ecografía e Imagenología';
-} elseif ($selectedSpecialtySlug !== '' && $selectedSpecialtySlug !== 'especialista-directo') {
+if ($selectedSpecialtySlug !== '') {
     $specObj = SpecialtyRepository::findForBooking($selectedSpecialtySlug);
     if ($specObj !== null) {
         $selectedSpecialtyLabel = $specObj['name'];
+    } else {
+        $selectedSpecialtySlug = '';
     }
 }
 
 if ($selectedDoctorSlug !== '') {
     $docObj = DoctorRepository::findForBooking($selectedDoctorSlug);
     if ($docObj !== null) {
-        $selectedDoctorLabel = 'Dr./Dra. ' . $docObj['name'] . ' — ' . $docObj['specialty'];
-        if ($selectedSpecialtySlug === 'especialista-directo') {
-            $selectedSpecialtyLabel = 'Valoración especializada — ' . $docObj['specialty'];
-        }
+        $selectedDoctorLabel = $docObj['name'] . ' — ' . $docObj['specialty'];
+    } else {
+        $selectedDoctorSlug = '';
     }
 }
 
@@ -384,10 +376,10 @@ $privacyChecked = ($old['privacidad'] ?? '') === '1';
                 </p>
               </div>
 
-              <!-- Specialty Selection (alimentado desde SpecialtyRepository + opciones clínicas) -->
+              <!-- Specialty Selection (alimentado exclusivamente desde SpecialtyRepository) -->
               <div class="space-y-3">
                 <label class="block font-title-md text-body-md font-semibold text-on-surface" for="field-specialty">
-                  Especialidad o Servicio Médico <span class="text-tertiary">*</span>
+                  Especialidad Médica <span class="text-tertiary">*</span>
                 </label>
                 <div class="relative">
                   <select
@@ -399,23 +391,12 @@ $privacyChecked = ($old['privacidad'] ?? '') === '1';
                     <option disabled value="" <?= $selectedSpecialtySlug === '' ? 'selected' : '' ?>>
                       Selecciona una especialidad médica...
                     </option>
-                    <?php if ($selectedSpecialtySlug === 'especialista-directo'): ?>
-                      <option value="especialista-directo" selected>
-                        <?= e($selectedSpecialtyLabel) ?>
-                      </option>
-                    <?php endif; ?>
                     <?php foreach ($specialties as $spec): ?>
                       <?php $isSpecSelected = ($selectedSpecialtySlug !== '' && strcasecmp($selectedSpecialtySlug, (string) $spec['id']) === 0); ?>
                       <option value="<?= e((string) $spec['id']) ?>" <?= $isSpecSelected ? 'selected' : '' ?>>
                         <?= e((string) $spec['name']) ?>
                       </option>
                     <?php endforeach; ?>
-                    <option value="servicio:laboratorio" <?= $selectedSpecialtySlug === 'servicio:laboratorio' ? 'selected' : '' ?>>
-                      Laboratorio Clínico (Exámenes de Sangre / Diagnóstico)
-                    </option>
-                    <option value="servicio:imagen" <?= $selectedSpecialtySlug === 'servicio:imagen' ? 'selected' : '' ?>>
-                      Ecografía e Imagenología
-                    </option>
                   </select>
                   <span class="material-symbols-outlined text-[20px] text-outline absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                     expand_more
@@ -448,7 +429,7 @@ $privacyChecked = ($old['privacidad'] ?? '') === '1';
                         data-specialties="<?= e(implode(' ', $doc['specialty_slugs'])) ?>"
                         <?= $isDocSelected ? 'selected' : '' ?>
                       >
-                        Dr./Dra. <?= e((string) $doc['name']) ?> — <?= e((string) $doc['specialty']) ?><?= empty($doc['accredited']) ? ' (Por confirmar)' : '' ?>
+                        <?= e((string) $doc['name']) ?> — <?= e((string) $doc['specialty']) ?><?= empty($doc['accredited']) ? ' (Por confirmar)' : '' ?>
                       </option>
                     <?php endforeach; ?>
                   </select>

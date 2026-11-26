@@ -95,15 +95,15 @@ class Security
         try {
             // Limpieza ocasional (1 de cada 20 peticiones) de registros mayores a 24h
             if (random_int(1, 20) === 1) {
-                Database::execute('DELETE FROM form_rate_limits WHERE created_at < (NOW() - INTERVAL 24 HOUR)');
+                Database::execute('DELETE FROM limites_envio WHERE creado_en < (NOW() - INTERVAL 24 HOUR)');
             }
 
             $rows = Database::fetchAll(
                 'SELECT COUNT(*) AS total
-                   FROM form_rate_limits
-                  WHERE form_key = :form_key
-                    AND ip_hash = :ip_hash
-                    AND created_at >= (NOW() - INTERVAL :mins MINUTE)',
+                   FROM limites_envio
+                  WHERE formulario = :form_key
+                    AND hash_ip = :ip_hash
+                    AND creado_en >= (NOW() - INTERVAL :mins MINUTE)',
                 [
                     'form_key' => $formKey,
                     'ip_hash'  => self::ipHash(),
@@ -123,7 +123,7 @@ class Security
     {
         try {
             Database::execute(
-                'INSERT INTO form_rate_limits (form_key, ip_hash, created_at) VALUES (:form_key, :ip_hash, NOW())',
+                'INSERT INTO limites_envio (formulario, hash_ip, creado_en) VALUES (:form_key, :ip_hash, NOW())',
                 [
                     'form_key' => $formKey,
                     'ip_hash'  => self::ipHash(),

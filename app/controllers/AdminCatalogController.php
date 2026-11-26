@@ -143,7 +143,6 @@ class AdminCatalogController
     public static function handleSpecialties(string $method): void
     {
         $adminUser  = self::requireCatalogRole();
-        $categories = SpecialtyRepository::adminGetCategories();
         $formErrors = [];
         $editing    = null;
         $showForm   = isset($_GET['new']) || isset($_GET['edit']);
@@ -181,16 +180,6 @@ class AdminCatalogController
             $description   = self::cleanText($_POST['description'] ?? '');
             $sortOrder     = max(1, (int) ($_POST['sort_order'] ?? 18));
 
-            $validCatIds = array_map(static fn(array $c): int => (int) $c['id'], $categories);
-            $rawCats     = is_array($_POST['category_ids'] ?? null) ? $_POST['category_ids'] : [];
-            $catIds      = [];
-            foreach ($rawCats as $cid) {
-                $cidInt = (int) $cid;
-                if (in_array($cidInt, $validCatIds, true)) {
-                    $catIds[] = $cidInt;
-                }
-            }
-
             if (mb_strlen($name, 'UTF-8') < 3) {
                 $formErrors[] = 'Ingresa el nombre de la especialidad médica.';
             }
@@ -202,9 +191,6 @@ class AdminCatalogController
             }
             if (mb_strlen($description, 'UTF-8') < 10) {
                 $formErrors[] = 'Ingresa una descripción de al menos 10 caracteres.';
-            }
-            if ($catIds === []) {
-                $formErrors[] = 'Selecciona al menos una categoría de filtro para la especialidad.';
             }
             if (SpecialtyRepository::slugExists($slug, $editId)) {
                 $formErrors[] = "El slug «{$slug}» ya existe en otra especialidad.";
@@ -220,11 +206,10 @@ class AdminCatalogController
                 'icon'           => $icon,
                 'highlight_text' => $highlightText !== '' ? $highlightText : null,
                 'sort_order'     => $sortOrder,
-                'category_ids'   => $catIds,
             ];
 
             if ($formErrors === []) {
-                SpecialtyRepository::adminSave($editId, $data, $catIds);
+                SpecialtyRepository::adminSave($editId, $data);
                 self::flashAndRedirect(
                     '/admin/especialidades',
                     'success',
@@ -244,7 +229,7 @@ class AdminCatalogController
             'Catálogo de Especialidades | Panel Hospital San Marcos',
             'especialidades',
             $adminUser,
-            compact('specialties', 'categories', 'editing', 'showForm', 'formErrors', 'adminFlash')
+            compact('specialties', 'editing', 'showForm', 'formErrors', 'adminFlash')
         );
     }
 
@@ -709,7 +694,8 @@ class AdminCatalogController
 
     private static function buildInitials(string $name): string
     {
-        $parts = preg_split('/\s+/u', trim($name)) ?: [];
+        $withoutTitle = trim((string) preg_replace('/^(dr\.?|dra\.?)\s+/iu', '', trim($name)));
+        $parts = preg_split('/\s+/u', $withoutTitle !== '' ? $withoutTitle : trim($name)) ?: [];
         $letters = '';
         foreach ($parts as $p) {
             if ($p !== '') {

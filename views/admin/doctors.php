@@ -73,7 +73,7 @@ $primarySelected = isset($editing['specialty_id']) && $editing['specialty_id'] !
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="space-y-1.5">
             <label for="doc-name" class="block font-title-md text-label-md font-semibold text-on-surface">
-              Nombre completo <span class="text-tertiary">*</span>
+              Nombre con título (Dr. / Dra.) <span class="text-tertiary">*</span>
             </label>
             <input
               id="doc-name"
@@ -81,7 +81,7 @@ $primarySelected = isset($editing['specialty_id']) && $editing['specialty_id'] !
               type="text"
               required
               value="<?= e((string) ($editing['name'] ?? '')) ?>"
-              placeholder="Ej. Johny Cabrera"
+              placeholder="Ej. Dr. Johny Cabrera / Dra. Karen Cobos S."
               class="w-full bg-surface-container-low text-on-surface px-4 py-2.5 rounded-xl font-body-sm text-body-sm border border-outline-variant focus-primary"
             />
           </div>

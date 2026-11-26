@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  * Catálogo oficial de médicos del Hospital San Marcos
- * Nómina institucional completa (29 profesionales: 22 acreditados + 7 por confirmar)
+ * Nómina institucional actualizada (28 profesionales con prefijo Dr./Dra.)
  */
 
 if (!defined('HSM_APP')) {
@@ -14,7 +14,7 @@ if (!defined('HSM_APP')) {
 return [
     [
         'id'          => 'johny-cabrera',
-        'name'        => 'Johny Cabrera',
+        'name'        => 'Dr. Johny Cabrera',
         'specialty'   => 'Cirujano general y laparoscópico',
         'category'    => 'cirugia',
         'initials'    => 'JC',
@@ -24,7 +24,7 @@ return [
     ],
     [
         'id'          => 'erick-apolo',
-        'name'        => 'Erick Apolo',
+        'name'        => 'Dr. Erick Apolo',
         'specialty'   => 'Cirujano general y laparoscópico',
         'category'    => 'cirugia',
         'initials'    => 'EA',
@@ -34,7 +34,7 @@ return [
     ],
     [
         'id'          => 'pablo-andres-cadena-pinargote',
-        'name'        => 'Pablo Andrés Cadena Pinargote',
+        'name'        => 'Dr. Pablo Andrés Cadena Pinargote',
         'specialty'   => 'Cirujano general',
         'category'    => 'cirugia',
         'initials'    => 'PC',
@@ -44,7 +44,7 @@ return [
     ],
     [
         'id'          => 'jorge-estuardo-herrera-guerrero',
-        'name'        => 'Jorge Estuardo Herrera Guerrero',
+        'name'        => 'Dr. Jorge Estuardo Herrera Guerrero',
         'specialty'   => 'Cirujano general',
         'category'    => 'cirugia',
         'initials'    => 'JH',
@@ -54,7 +54,7 @@ return [
     ],
     [
         'id'          => 'cesar-gia',
-        'name'        => 'César Gia',
+        'name'        => 'Dr. César Gia',
         'specialty'   => 'Cirujano pediatra',
         'category'    => 'cirugia',
         'initials'    => 'CG',
@@ -64,7 +64,7 @@ return [
     ],
     [
         'id'          => 'mauricio-arichabala',
-        'name'        => 'Mauricio Arichabala',
+        'name'        => 'Dr. Mauricio Arichabala',
         'specialty'   => 'Cirujano plástico maxilofacial',
         'category'    => 'cirugia',
         'initials'    => 'MA',
@@ -74,7 +74,7 @@ return [
     ],
     [
         'id'          => 'rafael-barcia-sanchez',
-        'name'        => 'Rafael Barcia Sánchez',
+        'name'        => 'Dr. Rafael Barcia Sánchez',
         'specialty'   => 'Neurocirujano',
         'category'    => 'cirugia',
         'initials'    => 'RB',
@@ -83,18 +83,8 @@ return [
         'description' => 'Diagnóstico y manejo quirúrgico de patologías del sistema nervioso central, columna vertebral y compresión radicular.',
     ],
     [
-        'id'          => 'juan-mateus',
-        'name'        => 'Juan Mateus',
-        'specialty'   => 'Anestesiólogo',
-        'category'    => 'cirugia',
-        'initials'    => 'JM',
-        'location'    => 'Sede Pasaje · Consulta programada',
-        'accredited'  => true,
-        'description' => 'Especialista en anestesiología, analgesia perioperatoria y soporte hemodinámico en quirófano.',
-    ],
-    [
         'id'          => 'odeley-rodriguez',
-        'name'        => 'Odeley Rodríguez',
+        'name'        => 'Dr. Odeley Rodríguez',
         'specialty'   => 'Ginecólogo obstetra',
         'category'    => 'ginecologia',
         'initials'    => 'OR',
@@ -104,7 +94,7 @@ return [
     ],
     [
         'id'          => 'klever-mendieta',
-        'name'        => 'Klever Mendieta',
+        'name'        => 'Dr. Klever Mendieta',
         'specialty'   => 'Ginecólogo obstetra',
         'category'    => 'ginecologia',
         'initials'    => 'KM',
@@ -114,7 +104,7 @@ return [
     ],
     [
         'id'          => 'byron-sanchez',
-        'name'        => 'Byron Sánchez',
+        'name'        => 'Dr. Byron Sánchez',
         'specialty'   => 'Internista',
         'category'    => 'medicina-interna',
         'initials'    => 'BS',
@@ -124,7 +114,7 @@ return [
     ],
     [
         'id'          => 'luis-davila',
-        'name'        => 'Luis Dávila',
+        'name'        => 'Dr. Luis Dávila',
         'specialty'   => 'Medicina interna',
         'category'    => 'medicina-interna',
         'initials'    => 'LD',
@@ -134,7 +124,7 @@ return [
     ],
     [
         'id'          => 'sixto-barriga',
-        'name'        => 'Sixto Barriga',
+        'name'        => 'Dr. Sixto Barriga',
         'specialty'   => 'Medicina familiar y diabetólogo',
         'category'    => 'medicina-interna',
         'initials'    => 'SB',
@@ -144,7 +134,7 @@ return [
     ],
     [
         'id'          => 'jorge-castro',
-        'name'        => 'Jorge Castro',
+        'name'        => 'Dr. Jorge Castro',
         'specialty'   => 'Cardiólogo',
         'category'    => 'medicina-interna',
         'initials'    => 'JC',
@@ -154,7 +144,7 @@ return [
     ],
     [
         'id'          => 'enkly-heredia',
-        'name'        => 'Enkly Heredia',
+        'name'        => 'Dr. Enkly Heredia',
         'specialty'   => 'Gastroenterólogo',
         'category'    => 'medicina-interna',
         'initials'    => 'EH',
@@ -164,7 +154,7 @@ return [
     ],
     [
         'id'          => 'luis-miguel-gaibor',
-        'name'        => 'Luis Miguel Gaibor',
+        'name'        => 'Dr. Luis Miguel Gaibor',
         'specialty'   => 'Neurólogo',
         'category'    => 'medicina-interna',
         'initials'    => 'LG',
@@ -174,7 +164,7 @@ return [
     ],
     [
         'id'          => 'edgar-roman',
-        'name'        => 'Edgar Román',
+        'name'        => 'Dr. Edgar Román',
         'specialty'   => 'Ortopedista · Traumatólogo',
         'category'    => 'traumatologia',
         'initials'    => 'ER',
@@ -184,7 +174,7 @@ return [
     ],
     [
         'id'          => 'luis-reyes-perez',
-        'name'        => 'Luis Reyes Pérez',
+        'name'        => 'Dr. Luis Reyes Pérez',
         'specialty'   => 'Traumatólogo',
         'category'    => 'traumatologia',
         'initials'    => 'LR',
@@ -194,7 +184,7 @@ return [
     ],
     [
         'id'          => 'nicolas-barzallo',
-        'name'        => 'Nicolás Barzallo',
+        'name'        => 'Dr. Nicolás Barzallo',
         'specialty'   => 'Traumatólogo',
         'category'    => 'traumatologia',
         'initials'    => 'NB',
@@ -204,7 +194,7 @@ return [
     ],
     [
         'id'          => 'alberto-amaya',
-        'name'        => 'Alberto Amaya',
+        'name'        => 'Dr. Alberto Amaya',
         'specialty'   => 'Urólogo',
         'category'    => 'otras',
         'initials'    => 'AA',
@@ -214,7 +204,7 @@ return [
     ],
     [
         'id'          => 'alexander-hernandez',
-        'name'        => 'Alexander Hernández',
+        'name'        => 'Dr. Alexander Hernández',
         'specialty'   => 'Otorrinolaringólogo',
         'category'    => 'otras',
         'initials'    => 'AH',
@@ -224,7 +214,7 @@ return [
     ],
     [
         'id'          => 'washington-ortega',
-        'name'        => 'Washington Ortega',
+        'name'        => 'Dr. Washington Ortega',
         'specialty'   => 'Psicólogo',
         'category'    => 'otras',
         'initials'    => 'WO',
@@ -234,7 +224,7 @@ return [
     ],
     [
         'id'          => 'sabina-tipantaxi',
-        'name'        => 'Sabina Tipantaxi F.',
+        'name'        => 'Dra. Sabina Tipantaxi F.',
         'specialty'   => 'Cirugía vascular y endovascular',
         'category'    => 'cirugia',
         'initials'    => 'ST',
@@ -244,7 +234,7 @@ return [
     ],
     [
         'id'          => 'jose-luis-pacheco',
-        'name'        => 'José Luis Pacheco',
+        'name'        => 'Dr. José Luis Pacheco',
         'specialty'   => 'Ortopedia y traumatología pediátrica',
         'category'    => 'traumatologia',
         'initials'    => 'JP',
@@ -254,7 +244,7 @@ return [
     ],
     [
         'id'          => 'pedro-ayala',
-        'name'        => 'Pedro Ayala',
+        'name'        => 'Dr. Pedro Ayala',
         'specialty'   => 'Ginecólogo obstetra',
         'category'    => 'ginecologia',
         'initials'    => 'PA',
@@ -264,7 +254,7 @@ return [
     ],
     [
         'id'          => 'abdon-pacurucu',
-        'name'        => 'Abdón Pacurucu',
+        'name'        => 'Dr. Abdón Pacurucu',
         'specialty'   => 'Cirujano general y endoscopista digestivo',
         'category'    => 'cirugia',
         'initials'    => 'AP',
@@ -274,7 +264,7 @@ return [
     ],
     [
         'id'          => 'ronald-morocho',
-        'name'        => 'Ronald Morocho',
+        'name'        => 'Dr. Ronald Morocho',
         'specialty'   => 'Medicina interna',
         'category'    => 'medicina-interna',
         'initials'    => 'RM',
@@ -284,7 +274,7 @@ return [
     ],
     [
         'id'          => 'patricio-carrion',
-        'name'        => 'Patricio Carrión',
+        'name'        => 'Dr. Patricio Carrión',
         'specialty'   => 'Médico general',
         'category'    => 'otras',
         'initials'    => 'PC',
@@ -294,7 +284,7 @@ return [
     ],
     [
         'id'          => 'karen-cobos',
-        'name'        => 'Karen Cobos S.',
+        'name'        => 'Dra. Karen Cobos S.',
         'specialty'   => 'Geriatría y diabetología',
         'category'    => 'medicina-interna',
         'initials'    => 'KC',

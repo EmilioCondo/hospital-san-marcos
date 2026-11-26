@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Repositorio PDO para persistencia de mensajes de contacto (contact_messages)
+ * Repositorio PDO para persistencia de mensajes de contacto (tabla `mensajes_contacto`)
  */
 
 if (!defined('HSM_APP')) {
@@ -12,9 +12,22 @@ if (!defined('HSM_APP')) {
 
 class ContactMessageRepository
 {
+    private const SELECT_MAPPED = 'SELECT
+        id,
+        codigo AS code,
+        nombre AS name,
+        correo AS email,
+        telefono AS phone,
+        asunto AS subject,
+        etiqueta_asunto AS subject_label,
+        mensaje AS message,
+        estado AS status,
+        estado_correo AS email_status,
+        correo_enviado_en AS email_sent_at,
+        creado_en AS created_at
+      FROM mensajes_contacto';
+
     /**
-     * Inserta un nuevo mensaje de contacto generando un código único CONT-XXXX.
-     *
      * @param array<string, mixed> $data
      * @return array{id: int, code: string}
      */
@@ -29,28 +42,28 @@ class ContactMessageRepository
                 $pdo->beginTransaction();
 
                 $stmt = $pdo->prepare(
-                    'INSERT INTO contact_messages (
-                        code, name, email, phone,
-                        subject, subject_label, message,
-                        status, privacy_accepted_at, ip_hash, email_status
+                    'INSERT INTO mensajes_contacto (
+                        codigo, nombre, correo, telefono,
+                        asunto, etiqueta_asunto, mensaje,
+                        estado, privacidad_aceptada_en, hash_ip, estado_correo
                     ) VALUES (
-                        :code, :name, :email, :phone,
-                        :subject, :subject_label, :message,
-                        :status, NOW(), :ip_hash, :email_status
+                        :codigo, :nombre, :correo, :telefono,
+                        :asunto, :etiqueta_asunto, :mensaje,
+                        :estado, NOW(), :hash_ip, :estado_correo
                     )'
                 );
 
                 $stmt->execute([
-                    'code'          => $code,
-                    'name'          => $data['name'],
-                    'email'         => $data['email'],
-                    'phone'         => $data['phone'],
-                    'subject'       => $data['subject'],
-                    'subject_label' => $data['subject_label'],
-                    'message'       => $data['message'],
-                    'status'        => 'nuevo',
-                    'ip_hash'       => $data['ip_hash'],
-                    'email_status'  => 'pendiente',
+                    'codigo'          => $code,
+                    'nombre'          => $data['name'],
+                    'correo'          => $data['email'],
+                    'telefono'        => $data['phone'],
+                    'asunto'          => $data['subject'],
+                    'etiqueta_asunto' => $data['subject_label'],
+                    'mensaje'         => $data['message'],
+                    'estado'          => 'nuevo',
+                    'hash_ip'         => $data['ip_hash'],
+                    'estado_correo'   => 'pendiente',
                 ]);
 
                 $insertId = (int) $pdo->lastInsertId();
@@ -65,7 +78,7 @@ class ContactMessageRepository
                     $pdo->rollBack();
                 }
 
-                if ((string) $e->getCode() === '23000' && str_contains($e->getMessage(), 'uq_contact_code')) {
+                if ((string) $e->getCode() === '23000' && str_contains($e->getMessage(), 'uq_contacto_codigo')) {
                     continue;
                 }
 
@@ -83,17 +96,17 @@ class ContactMessageRepository
         try {
             if ($status === 'enviado') {
                 Database::execute(
-                    'UPDATE contact_messages SET email_status = :status, email_sent_at = NOW() WHERE id = :id',
-                    ['status' => 'enviado', 'id' => $id]
+                    'UPDATE mensajes_contacto SET estado_correo = :estado, correo_enviado_en = NOW() WHERE id = :id',
+                    ['estado' => 'enviado', 'id' => $id]
                 );
             } else {
                 Database::execute(
-                    'UPDATE contact_messages SET email_status = :status WHERE id = :id',
-                    ['status' => 'error', 'id' => $id]
+                    'UPDATE mensajes_contacto SET estado_correo = :estado WHERE id = :id',
+                    ['estado' => 'error', 'id' => $id]
                 );
             }
         } catch (Throwable $e) {
-            error_log('[HSM][CONTACT_DB] Error actualizando email_status: ' . $e->getMessage());
+            error_log('[HSM][CONTACT_DB] Error actualizando estado_correo: ' . $e->getMessage());
         }
     }
 
@@ -109,8 +122,8 @@ class ContactMessageRepository
             'respondido' => 0,
         ];
 
-        foreach (Database::fetchAll('SELECT status, COUNT(*) AS total FROM contact_messages GROUP BY status') as $row) {
-            $st = (string) $row['status'];
+        foreach (Database::fetchAll('SELECT estado, COUNT(*) AS total FROM mensajes_contacto GROUP BY estado') as $row) {
+            $st = (string) $row['estado'];
             $n  = (int) $row['total'];
             if (isset($counts[$st])) {
                 $counts[$st] = $n;
@@ -132,20 +145,20 @@ class ContactMessageRepository
 
         $status = trim((string) ($filters['status'] ?? ''));
         if (in_array($status, ['nuevo', 'leido', 'respondido'], true)) {
-            $where[]          = 'status = :status';
+            $where[]          = 'estado = :status';
             $params['status'] = $status;
         }
 
         $subject = trim((string) ($filters['subject'] ?? ''));
         if ($subject !== '' && isset(ContactValidator::SUBJECTS[$subject])) {
-            $where[]           = 'subject = :subject';
+            $where[]           = 'asunto = :subject';
             $params['subject'] = $subject;
         }
 
         $q = trim((string) ($filters['q'] ?? ''));
         if ($q !== '') {
             $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q);
-            $where[] = '(code LIKE :q1 OR name LIKE :q2 OR email LIKE :q3 OR phone LIKE :q4)';
+            $where[] = '(codigo LIKE :q1 OR nombre LIKE :q2 OR correo LIKE :q3 OR telefono LIKE :q4)';
             $like = '%' . $escaped . '%';
             $params['q1'] = $like;
             $params['q2'] = $like;
@@ -155,7 +168,7 @@ class ContactMessageRepository
 
         $whereSql = $where !== [] ? (' WHERE ' . implode(' AND ', $where)) : '';
 
-        $countRows  = Database::fetchAll('SELECT COUNT(*) AS total FROM contact_messages' . $whereSql, $params);
+        $countRows  = Database::fetchAll('SELECT COUNT(*) AS total FROM mensajes_contacto' . $whereSql, $params);
         $total      = (int) ($countRows[0]['total'] ?? 0);
         $totalPages = max(1, (int) ceil($total / max(1, $perPage)));
         $safePage   = max(1, min($page, $totalPages));
@@ -163,10 +176,9 @@ class ContactMessageRepository
 
         try {
             $stmt = Database::getConnection()->prepare(
-                'SELECT id, code, name, email, phone, subject, subject_label, message, status, email_status, created_at
-                   FROM contact_messages'
+                self::SELECT_MAPPED
                 . $whereSql
-                . ' ORDER BY FIELD(status, \'nuevo\', \'leido\', \'respondido\'), id DESC
+                . ' ORDER BY FIELD(estado, \'nuevo\', \'leido\', \'respondido\'), id DESC
                     LIMIT :lim OFFSET :off'
             );
 
@@ -197,10 +209,9 @@ class ContactMessageRepository
     {
         try {
             $stmt = Database::getConnection()->prepare(
-                'SELECT id, code, name, email, subject_label, status, created_at
-                   FROM contact_messages
-               ORDER BY FIELD(status, \'nuevo\', \'leido\', \'respondido\'), id DESC
-                  LIMIT :lim'
+                self::SELECT_MAPPED
+                . ' ORDER BY FIELD(estado, \'nuevo\', \'leido\', \'respondido\'), id DESC
+                    LIMIT :lim'
             );
             $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
             $stmt->execute();
@@ -216,7 +227,7 @@ class ContactMessageRepository
      */
     public static function findById(int $id): ?array
     {
-        $rows = Database::fetchAll('SELECT * FROM contact_messages WHERE id = :id LIMIT 1', ['id' => $id]);
+        $rows = Database::fetchAll(self::SELECT_MAPPED . ' WHERE id = :id LIMIT 1', ['id' => $id]);
         return $rows[0] ?? null;
     }
 
@@ -226,8 +237,8 @@ class ContactMessageRepository
             return;
         }
         Database::execute(
-            'UPDATE contact_messages SET status = :status WHERE id = :id',
-            ['status' => $status, 'id' => $id]
+            'UPDATE mensajes_contacto SET estado = :estado WHERE id = :id',
+            ['estado' => $status, 'id' => $id]
         );
     }
 }

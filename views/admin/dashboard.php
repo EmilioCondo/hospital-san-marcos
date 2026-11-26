@@ -223,7 +223,7 @@ if (!defined('HSM_APP')) {
         <a href="<?= e(url('/admin/especialidades')) ?>" class="p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors border border-outline-variant space-y-1 focus-primary">
           <span class="material-symbols-outlined text-primary text-[22px]">medical_services</span>
           <p class="font-title-md text-body-md font-bold text-on-surface">Especialidades</p>
-          <p class="font-body-sm text-label-sm text-on-surface-variant">17 áreas y categorías de filtrado</p>
+          <p class="font-body-sm text-label-sm text-on-surface-variant">Catálogo oficial de áreas médicas</p>
         </a>
         <a href="<?= e(url('/admin/servicios')) ?>" class="p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors border border-outline-variant space-y-1 focus-primary">
           <span class="material-symbols-outlined text-primary text-[22px]">local_hospital</span>

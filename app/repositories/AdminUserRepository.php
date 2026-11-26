@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Repositorio PDO de usuarios administrativos (admin_users)
+ * Repositorio PDO de usuarios administrativos (tabla `usuarios_admin`)
  */
 
 if (!defined('HSM_APP')) {
@@ -13,8 +13,6 @@ if (!defined('HSM_APP')) {
 class AdminUserRepository
 {
     /**
-     * Busca un usuario administrativo por username o correo electrónico.
-     *
      * @return array<string, mixed>|null
      */
     public static function findByUsernameOrEmail(string $identifier): ?array
@@ -25,9 +23,10 @@ class AdminUserRepository
         }
 
         $rows = Database::fetchAll(
-            'SELECT id, username, email, password_hash, role, is_active, last_login_at, created_at
-               FROM admin_users
-              WHERE username = :u OR email = :e
+            'SELECT id, usuario AS username, correo AS email, clave_hash AS password_hash,
+                    rol AS role, activo AS is_active, ultimo_acceso_en AS last_login_at, creado_en AS created_at
+               FROM usuarios_admin
+              WHERE usuario = :u OR correo = :e
               LIMIT 1',
             ['u' => $needle, 'e' => strtolower($needle)]
         );
@@ -41,8 +40,9 @@ class AdminUserRepository
     public static function findById(int $id): ?array
     {
         $rows = Database::fetchAll(
-            'SELECT id, username, email, role, is_active, last_login_at, created_at
-               FROM admin_users
+            'SELECT id, usuario AS username, correo AS email, rol AS role,
+                    activo AS is_active, ultimo_acceso_en AS last_login_at, creado_en AS created_at
+               FROM usuarios_admin
               WHERE id = :id
               LIMIT 1',
             ['id' => $id]
@@ -54,14 +54,14 @@ class AdminUserRepository
     public static function updateLastLogin(int $id): void
     {
         Database::execute(
-            'UPDATE admin_users SET last_login_at = NOW() WHERE id = :id',
+            'UPDATE usuarios_admin SET ultimo_acceso_en = NOW() WHERE id = :id',
             ['id' => $id]
         );
     }
 
     public static function countAll(): int
     {
-        $rows = Database::fetchAll('SELECT COUNT(*) AS total FROM admin_users');
+        $rows = Database::fetchAll('SELECT COUNT(*) AS total FROM usuarios_admin');
         return (int) ($rows[0]['total'] ?? 0);
     }
 
@@ -71,8 +71,9 @@ class AdminUserRepository
     public static function getAll(): array
     {
         return Database::fetchAll(
-            'SELECT id, username, email, role, is_active, last_login_at, created_at
-               FROM admin_users
+            'SELECT id, usuario AS username, correo AS email, rol AS role,
+                    activo AS is_active, ultimo_acceso_en AS last_login_at, creado_en AS created_at
+               FROM usuarios_admin
            ORDER BY id ASC'
         );
     }
@@ -81,12 +82,12 @@ class AdminUserRepository
     {
         if ($excludeId !== null) {
             $rows = Database::fetchAll(
-                'SELECT username, email FROM admin_users WHERE (username = :u OR email = :e) AND id <> :id LIMIT 1',
+                'SELECT usuario, correo FROM usuarios_admin WHERE (usuario = :u OR correo = :e) AND id <> :id LIMIT 1',
                 ['u' => $username, 'e' => $email, 'id' => $excludeId]
             );
         } else {
             $rows = Database::fetchAll(
-                'SELECT username, email FROM admin_users WHERE username = :u OR email = :e LIMIT 1',
+                'SELECT usuario, correo FROM usuarios_admin WHERE usuario = :u OR correo = :e LIMIT 1',
                 ['u' => $username, 'e' => $email]
             );
         }
@@ -95,7 +96,7 @@ class AdminUserRepository
             return null;
         }
 
-        if (strcasecmp((string) $rows[0]['username'], $username) === 0) {
+        if (strcasecmp((string) $rows[0]['usuario'], $username) === 0) {
             return 'El nombre de usuario ya está en uso por otra cuenta.';
         }
         return 'El correo electrónico ya está registrado en otra cuenta administrativa.';
@@ -105,12 +106,12 @@ class AdminUserRepository
     {
         if ($excludeId !== null) {
             $rows = Database::fetchAll(
-                'SELECT COUNT(*) AS total FROM admin_users WHERE role = :r AND is_active = 1 AND id <> :id',
+                'SELECT COUNT(*) AS total FROM usuarios_admin WHERE rol = :r AND activo = 1 AND id <> :id',
                 ['r' => 'admin', 'id' => $excludeId]
             );
         } else {
             $rows = Database::fetchAll(
-                'SELECT COUNT(*) AS total FROM admin_users WHERE role = :r AND is_active = 1',
+                'SELECT COUNT(*) AS total FROM usuarios_admin WHERE rol = :r AND activo = 1',
                 ['r' => 'admin']
             );
         }
@@ -127,8 +128,8 @@ class AdminUserRepository
         if ($id !== null && $id > 0) {
             if ($password !== '') {
                 Database::execute(
-                    'UPDATE admin_users
-                        SET username = :u, email = :e, password_hash = :h, role = :r, is_active = :a
+                    'UPDATE usuarios_admin
+                        SET usuario = :u, correo = :e, clave_hash = :h, rol = :r, activo = :a
                       WHERE id = :id',
                     [
                         'u'  => $data['username'],
@@ -141,8 +142,8 @@ class AdminUserRepository
                 );
             } else {
                 Database::execute(
-                    'UPDATE admin_users
-                        SET username = :u, email = :e, role = :r, is_active = :a
+                    'UPDATE usuarios_admin
+                        SET usuario = :u, correo = :e, rol = :r, activo = :a
                       WHERE id = :id',
                     [
                         'u'  => $data['username'],
@@ -157,7 +158,7 @@ class AdminUserRepository
         }
 
         Database::execute(
-            'INSERT INTO admin_users (username, email, password_hash, role, is_active)
+            'INSERT INTO usuarios_admin (usuario, correo, clave_hash, rol, activo)
              VALUES (:u, :e, :h, :r, :a)',
             [
                 'u' => $data['username'],
@@ -172,6 +173,6 @@ class AdminUserRepository
 
     public static function delete(int $id): void
     {
-        Database::execute('DELETE FROM admin_users WHERE id = :id', ['id' => $id]);
+        Database::execute('DELETE FROM usuarios_admin WHERE id = :id', ['id' => $id]);
     }
 }

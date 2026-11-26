@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 /**
  * Validador backend de solicitudes de citas médicas (4 pasos)
+ * Trabaja exclusivamente con el catálogo de `especialidades` y `medicos` (o Sin preferencia).
  */
 
 if (!defined('HSM_APP')) {
@@ -51,34 +52,23 @@ class AppointmentValidator
         $errors = [];
 
         // -----------------------------------------------------------------
-        // PASO 1: Especialidad / Servicio y Médico
+        // PASO 1: Especialidad (solo catálogo `especialidades`) y Médico (`medicos` o Sin preferencia)
         // -----------------------------------------------------------------
-        $attentionType  = 'especialidad';
         $specialtyDbId  = null;
         $specialtySlug  = null;
         $attentionLabel = '';
 
         if ($rawSpecialty === '') {
-            $errors['especialidad'] = 'Selecciona una especialidad o servicio médico.';
-        } elseif ($rawSpecialty === 'servicio:laboratorio' || strcasecmp($rawSpecialty, 'Laboratorio Clínico') === 0) {
-            $attentionType  = 'laboratorio';
-            $attentionLabel = 'Laboratorio Clínico';
-        } elseif ($rawSpecialty === 'servicio:imagen' || strcasecmp($rawSpecialty, 'Ecografía e Imagenología') === 0) {
-            $attentionType  = 'imagen';
-            $attentionLabel = 'Ecografía e Imagenología';
-        } elseif ($rawSpecialty === 'especialista-directo') {
-            $attentionType  = 'especialista';
-            $attentionLabel = 'Valoración con especialista';
+            $errors['especialidad'] = 'Selecciona una especialidad médica.';
         } else {
             $matchedSpec = SpecialtyRepository::findForBooking($rawSpecialty);
             if ($matchedSpec === null) {
                 $errors['especialidad'] = 'La especialidad seleccionada no pertenece al catálogo institucional.';
             } else {
-                $attentionType         = 'especialidad';
-                $specialtyDbId         = $matchedSpec['db_id'];
-                $specialtySlug         = $matchedSpec['id'];
-                $attentionLabel        = $matchedSpec['name'];
-                $old['especialidad']   = $matchedSpec['id'];
+                $specialtyDbId       = $matchedSpec['db_id'];
+                $specialtySlug       = $matchedSpec['id'];
+                $attentionLabel      = $matchedSpec['name'];
+                $old['especialidad'] = $matchedSpec['id'];
             }
         }
 
@@ -87,30 +77,19 @@ class AppointmentValidator
 
         if ($rawDoctor === '' || $rawDoctor === 'sin-preferencia' || strcasecmp($rawDoctor, 'Cualquier especialista disponible') === 0) {
             $old['medico'] = '';
-            if ($attentionType === 'especialista') {
-                $errors['especialidad'] = 'Selecciona una especialidad médica para continuar.';
-            }
         } else {
             $matchedDoc = DoctorRepository::findForBooking($rawDoctor);
             if ($matchedDoc === null) {
                 $errors['medico'] = 'El médico seleccionado no es válido.';
-            } elseif (in_array($attentionType, ['laboratorio', 'imagen'], true)) {
-                $errors['medico'] = 'Para servicios de apoyo diagnóstico deja la opción «Sin preferencia».';
-            } elseif ($attentionType === 'especialidad' && $specialtySlug !== null) {
+            } elseif ($specialtySlug !== null) {
                 $docSpecs = $matchedDoc['specialty_slugs'] ?? [];
                 if (!in_array($specialtySlug, $docSpecs, true)) {
                     $errors['medico'] = 'El médico elegido no corresponde a la especialidad seleccionada.';
                 } else {
                     $doctorDbId    = (int) $matchedDoc['db_id'];
-                    $doctorLabel   = 'Dr./Dra. ' . $matchedDoc['name'] . ' — ' . $matchedDoc['specialty'];
+                    $doctorLabel   = $matchedDoc['name'] . ' — ' . $matchedDoc['specialty'];
                     $old['medico'] = (string) $matchedDoc['id'];
                 }
-            } else {
-                // Caso 'especialista' (ej. médico preseleccionado por ?doctor= sin especialidad en el filtro)
-                $doctorDbId     = (int) $matchedDoc['db_id'];
-                $doctorLabel    = 'Dr./Dra. ' . $matchedDoc['name'] . ' — ' . $matchedDoc['specialty'];
-                $attentionLabel = 'Valoración especializada — ' . $matchedDoc['specialty'];
-                $old['medico']  = (string) $matchedDoc['id'];
             }
         }
 
@@ -187,7 +166,7 @@ class AppointmentValidator
             if (mb_strlen($rawEmail, 'UTF-8') > 150 || filter_var($rawEmail, FILTER_VALIDATE_EMAIL) === false) {
                 $errors['paciente_email'] = 'Ingresa un correo electrónico válido o déjalo vacío.';
             } else {
-                $cleanEmail = strtolower($rawEmail);
+                $cleanEmail            = strtolower($rawEmail);
                 $old['paciente_email'] = $cleanEmail;
             }
         }
@@ -205,7 +184,6 @@ class AppointmentValidator
             $errors['privacidad'] = 'Debes aceptar la política de protección de datos personales para registrar la solicitud.';
         }
 
-        // Determinar el primer paso con error para abrirlo automáticamente en la vista
         $errorStep = 1;
         if ($errors !== []) {
             if (isset($errors['especialidad']) || isset($errors['medico'])) {
@@ -223,7 +201,6 @@ class AppointmentValidator
             'errorStep' => $errorStep,
             'old'       => $old,
             'clean'     => [
-                'attention_type'   => $attentionType,
                 'specialty_id'     => $specialtyDbId,
                 'attention_label'  => $attentionLabel,
                 'doctor_id'        => $doctorDbId,

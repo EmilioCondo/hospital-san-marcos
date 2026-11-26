@@ -187,20 +187,10 @@ export function initAgendarCitaPage() {
     const desiredDoctor =
       typeof preserveValue === 'string' ? preserveValue : doctorSelect.value || '';
 
-    // Si cambia a una especialidad regular, retirar la pseudo-opción 'especialista-directo'
-    if (specValue !== 'especialista-directo') {
-      const directOpt = specialtySelect.querySelector('option[value="especialista-directo"]');
-      if (directOpt) {
-        directOpt.remove();
-      }
-    }
-
-    let matchingDoctors = [];
-    if (specValue === 'especialista-directo') {
-      matchingDoctors = allDoctorCatalog.filter((d) => d.value === desiredDoctor);
-    } else if (specValue !== '' && !specValue.startsWith('servicio:')) {
-      matchingDoctors = allDoctorCatalog.filter((d) => d.specialties.includes(specValue));
-    }
+    const matchingDoctors =
+      specValue !== ''
+        ? allDoctorCatalog.filter((d) => d.specialties.includes(specValue))
+        : [];
 
     doctorSelect.innerHTML = '';
 
@@ -230,15 +220,9 @@ export function initAgendarCitaPage() {
       if (specValue === '') {
         doctorHint.textContent =
           'Selecciona primero una especialidad para ver sus médicos asignados, o mantén «Sin preferencia».';
-      } else if (specValue.startsWith('servicio:')) {
-        doctorHint.textContent =
-          'Servicio diagnóstico institucional: el personal de turno atenderá tu estudio sin requerir médico específico.';
-      } else if (specValue === 'especialista-directo') {
-        doctorHint.textContent =
-          'Especialista preseleccionado desde el directorio médico institucional.';
       } else if (matchingDoctors.length === 0) {
         doctorHint.textContent =
-          'Sin preferencia activa: Admisión asignará el especialista disponible para esta área.';
+          'Sin preferencia activa: Admisión asignará el especialista disponible para esta especialidad.';
       } else if (matchingDoctors.length === 1) {
         doctorHint.textContent =
           '1 especialista disponible en esta especialidad (o puedes dejar «Sin preferencia»).';

@@ -7,9 +7,6 @@ if (!defined('HSM_APP')) {
 }
 
 $isEdit = is_array($editing) && !empty($editing['id']);
-$selectedCats = is_array($editing['category_ids'] ?? null)
-    ? array_map('intval', $editing['category_ids'])
-    : [];
 ?>
 <div class="space-y-6 animate-fadeIn">
   <div class="flex flex-wrap items-center justify-between gap-3">
@@ -85,7 +82,7 @@ $selectedCats = is_array($editing['category_ids'] ?? null)
               type="text"
               required
               value="<?= e((string) ($editing['badge'] ?? '')) ?>"
-              placeholder="Ej. Corazón / Adultos"
+              placeholder="Ej. Cardiovascular"
               class="w-full bg-surface-container-low text-on-surface px-4 py-2.5 rounded-xl font-body-sm text-body-sm border border-outline-variant focus-primary"
             />
           </div>
@@ -115,7 +112,7 @@ $selectedCats = is_array($editing['category_ids'] ?? null)
               type="text"
               required
               value="<?= e((string) ($editing['icon'] ?? 'stethoscope')) ?>"
-              placeholder="Ej. stethoscope, cardiology"
+              placeholder="Ej. stethoscope, favorite"
               class="w-full bg-surface-container-low text-on-surface px-4 py-2.5 rounded-xl font-body-sm text-body-sm border border-outline-variant focus-primary"
             />
           </div>
@@ -177,27 +174,6 @@ $selectedCats = is_array($editing['category_ids'] ?? null)
           ><?= e((string) ($editing['description'] ?? '')) ?></textarea>
         </div>
 
-        <div class="space-y-2">
-          <span class="block font-title-md text-label-md font-semibold text-on-surface">
-            Categorías de filtrado en la página Especialidades <span class="text-tertiary">*</span>
-          </span>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-4 rounded-xl bg-surface-container-low border border-outline-variant">
-            <?php foreach ($categories as $cat): ?>
-              <?php $cid = (int) $cat['id']; ?>
-              <label class="flex items-center gap-2 cursor-pointer font-body-sm text-body-sm text-on-surface">
-                <input
-                  type="checkbox"
-                  name="category_ids[]"
-                  value="<?= $cid ?>"
-                  <?= in_array($cid, $selectedCats, true) ? 'checked' : '' ?>
-                  class="w-4 h-4 accent-primary rounded"
-                />
-                <span><?= e((string) $cat['label']) ?></span>
-              </label>
-            <?php endforeach; ?>
-          </div>
-        </div>
-
         <div class="pt-2 flex items-center gap-3">
           <button
             type="submit"
@@ -223,7 +199,7 @@ $selectedCats = is_array($editing['category_ids'] ?? null)
         <tr class="border-b border-outline-variant text-outline font-label-sm text-label-sm uppercase">
           <th class="py-3 pr-3">#</th>
           <th class="py-3 pr-4">Especialidad</th>
-          <th class="py-3 pr-4">Grupos de filtro</th>
+          <th class="py-3 pr-4">Descripción</th>
           <th class="py-3 pr-4">Médicos vinculados</th>
           <th class="py-3">Acciones</th>
         </tr>
@@ -242,7 +218,7 @@ $selectedCats = is_array($editing['category_ids'] ?? null)
               </div>
             </td>
             <td class="py-3 pr-4 text-on-surface-variant">
-              <?= e((string) ($sp['categories_label'] ?? '')) ?>
+              <?= e(mb_strimwidth((string) $sp['description'], 0, 85, '...')) ?>
             </td>
             <td class="py-3 pr-4 font-semibold text-primary">
               <?= (int) $sp['doctors_count'] ?>

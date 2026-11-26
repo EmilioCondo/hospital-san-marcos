@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 /**
- * Repositorio de Preguntas Frecuentes (FAQs)
- * Diseñado para desacoplar la fuente de datos (actualmente archivos PHP; preparado para MySQL/PDO en Etapa 2)
+ * Repositorio PDO de Preguntas Frecuentes (tabla `preguntas_frecuentes`)
+ * Independiente de `servicios`.
  */
 
 if (!defined('HSM_APP')) {
@@ -17,15 +17,14 @@ class FaqRepository
     private static ?array $cache = null;
 
     /**
-     * Obtiene las 5 preguntas frecuentes oficiales
      * @return array<int, array<string, string>>
      */
     public static function getAll(): array
     {
         if (self::$cache === null) {
             $rows = Database::fetchAll(
-                'SELECT slug, question, answer FROM faqs WHERE is_active = :active ORDER BY sort_order ASC, id ASC',
-                ['active' => 1]
+                'SELECT slug, pregunta, respuesta FROM preguntas_frecuentes WHERE activo = :activo ORDER BY orden ASC, id ASC',
+                ['activo' => 1]
             );
             self::$cache = array_map(static fn(array $r): array => self::mapRow($r), $rows);
         }
@@ -33,14 +32,13 @@ class FaqRepository
     }
 
     /**
-     * Busca una pregunta frecuente por su identificador (slug)
      * @return array<string, string>|null
      */
     public static function findById(string $id): ?array
     {
         $rows = Database::fetchAll(
-            'SELECT slug, question, answer FROM faqs WHERE slug = :slug AND is_active = :active LIMIT 1',
-            ['slug' => $id, 'active' => 1]
+            'SELECT slug, pregunta, respuesta FROM preguntas_frecuentes WHERE slug = :slug AND activo = :activo LIMIT 1',
+            ['slug' => $id, 'activo' => 1]
         );
         return $rows === [] ? null : self::mapRow($rows[0]);
     }
@@ -53,8 +51,8 @@ class FaqRepository
     {
         return [
             'id'       => (string) $r['slug'],
-            'question' => (string) $r['question'],
-            'answer'   => (string) $r['answer'],
+            'question' => (string) $r['pregunta'],
+            'answer'   => (string) $r['respuesta'],
         ];
     }
 
@@ -63,7 +61,10 @@ class FaqRepository
      */
     public static function adminGetAll(): array
     {
-        return Database::fetchAll('SELECT * FROM faqs ORDER BY sort_order ASC, id ASC');
+        return Database::fetchAll(
+            'SELECT id, slug, pregunta AS question, respuesta AS answer, orden AS sort_order, activo AS is_active
+               FROM preguntas_frecuentes ORDER BY orden ASC, id ASC'
+        );
     }
 
     /**
@@ -71,7 +72,11 @@ class FaqRepository
      */
     public static function adminFindById(int $id): ?array
     {
-        $rows = Database::fetchAll('SELECT * FROM faqs WHERE id = :id LIMIT 1', ['id' => $id]);
+        $rows = Database::fetchAll(
+            'SELECT id, slug, pregunta AS question, respuesta AS answer, orden AS sort_order, activo AS is_active
+               FROM preguntas_frecuentes WHERE id = :id LIMIT 1',
+            ['id' => $id]
+        );
         return $rows[0] ?? null;
     }
 
@@ -79,12 +84,12 @@ class FaqRepository
     {
         if ($excludeId !== null) {
             $rows = Database::fetchAll(
-                'SELECT id FROM faqs WHERE slug = :slug AND id <> :id LIMIT 1',
+                'SELECT id FROM preguntas_frecuentes WHERE slug = :slug AND id <> :id LIMIT 1',
                 ['slug' => $slug, 'id' => $excludeId]
             );
         } else {
             $rows = Database::fetchAll(
-                'SELECT id FROM faqs WHERE slug = :slug LIMIT 1',
+                'SELECT id FROM preguntas_frecuentes WHERE slug = :slug LIMIT 1',
                 ['slug' => $slug]
             );
         }
@@ -97,19 +102,19 @@ class FaqRepository
     public static function adminSave(?int $id, array $data): int
     {
         $params = [
-            'slug'       => $data['slug'],
-            'question'   => $data['question'],
-            'answer'     => $data['answer'],
-            'sort_order' => $data['sort_order'],
-            'is_active'  => $data['is_active'] ? 1 : 0,
+            'slug'      => $data['slug'],
+            'pregunta'  => $data['question'],
+            'respuesta' => $data['answer'],
+            'orden'     => $data['sort_order'],
+            'activo'    => $data['is_active'] ? 1 : 0,
         ];
 
         if ($id !== null && $id > 0) {
             $params['id'] = $id;
             Database::execute(
-                'UPDATE faqs
-                    SET slug = :slug, question = :question, answer = :answer,
-                        sort_order = :sort_order, is_active = :is_active
+                'UPDATE preguntas_frecuentes
+                    SET slug = :slug, pregunta = :pregunta, respuesta = :respuesta,
+                        orden = :orden, activo = :activo
                   WHERE id = :id',
                 $params
             );
@@ -118,8 +123,8 @@ class FaqRepository
         }
 
         Database::execute(
-            'INSERT INTO faqs (slug, question, answer, sort_order, is_active)
-             VALUES (:slug, :question, :answer, :sort_order, :is_active)',
+            'INSERT INTO preguntas_frecuentes (slug, pregunta, respuesta, orden, activo)
+             VALUES (:slug, :pregunta, :respuesta, :orden, :activo)',
             $params
         );
         self::$cache = null;
@@ -128,13 +133,13 @@ class FaqRepository
 
     public static function adminToggleActive(int $id): void
     {
-        Database::execute('UPDATE faqs SET is_active = IF(is_active = 1, 0, 1) WHERE id = :id', ['id' => $id]);
+        Database::execute('UPDATE preguntas_frecuentes SET activo = IF(activo = 1, 0, 1) WHERE id = :id', ['id' => $id]);
         self::$cache = null;
     }
 
     public static function adminDelete(int $id): void
     {
-        Database::execute('DELETE FROM faqs WHERE id = :id', ['id' => $id]);
+        Database::execute('DELETE FROM preguntas_frecuentes WHERE id = :id', ['id' => $id]);
         self::$cache = null;
     }
 }

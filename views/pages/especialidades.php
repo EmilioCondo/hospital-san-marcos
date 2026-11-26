@@ -8,7 +8,6 @@ if (!defined('HSM_APP')) {
 
 $currentPage      = 'Especialidades';
 $specialties      = SpecialtyRepository::getAll();
-$filterCategories = SpecialtyRepository::getFilterCategories();
 $totalSpecialties = count($specialties);
 ?>
 <div class="hospital-page-hero flex flex-col w-full">
@@ -60,10 +59,10 @@ $totalSpecialties = count($specialties);
         </div>
       </div>
 
-      <!-- Search & Category Filters Panel -->
-      <div class="mt-space-xl bg-surface-container-lowest p-space-lg rounded-2xl shadow-md border border-outline-variant">
+      <!-- Search Panel -->
+      <div class="mt-space-xl bg-surface-container-lowest p-space-lg rounded-2xl shadow-md border border-outline-variant space-y-3">
         <!-- Search Input -->
-        <div class="relative w-full mb-space-lg" role="search">
+        <div class="relative w-full" role="search">
           <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[22px]">
             search
           </span>
@@ -71,7 +70,7 @@ $totalSpecialties = count($specialties);
             id="specialty-search-input"
             aria-label="Buscar especialidad médica"
             class="w-full pl-12 pr-10 py-3.5 bg-surface-container-low text-on-surface placeholder:text-outline rounded-xl font-body-md text-body-md focus-primary focus:ring-2 focus:ring-primary-container shadow-inner transition-all"
-            placeholder="Buscar especialidad médica por nombre..."
+            placeholder="Buscar especialidad médica por nombre o descripción..."
             type="text"
             value=""
           />
@@ -85,31 +84,10 @@ $totalSpecialties = count($specialties);
           </button>
         </div>
 
-        <!-- Filter Chips Wrap -->
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">
-              Filtrar por grupo de atención:
-            </span>
-            <span id="specialty-results-count" class="font-label-sm text-label-sm font-semibold text-primary">
-              <?= $totalSpecialties === 1 ? 'Mostrando 1 especialidad' : 'Mostrando ' . $totalSpecialties . ' especialidades' ?>
-            </span>
-          </div>
-          <div class="flex flex-wrap items-center gap-2 pt-1" role="tablist">
-            <?php foreach ($filterCategories as $cat): ?>
-              <?php $isAll = ($cat['id'] === 'all'); ?>
-              <button
-                type="button"
-                data-specialty-cat="<?= e($cat['id']) ?>"
-                aria-pressed="<?= $isAll ? 'true' : 'false' ?>"
-                class="px-4 py-2 rounded-full font-label-md text-label-md transition-all shadow-sm focus-primary <?= $isAll
-                    ? 'bg-primary text-on-primary font-bold'
-                    : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface' ?>"
-              >
-                <?= e($cat['label']) ?>
-              </button>
-            <?php endforeach; ?>
-          </div>
+        <div class="flex items-center justify-end">
+          <span id="specialty-results-count" class="font-label-sm text-label-sm font-semibold text-primary">
+            <?= $totalSpecialties === 1 ? 'Mostrando 1 especialidad' : 'Mostrando ' . $totalSpecialties . ' especialidades' ?>
+          </span>
         </div>
       </div>
     </div>
@@ -148,7 +126,6 @@ $totalSpecialties = count($specialties);
         ?>
         <article
           data-specialty-card="true"
-          data-category="<?= e($spec['category']) ?>"
           data-name="<?= e($spec['name']) ?>"
           data-description="<?= e($spec['description']) ?>"
           class="group flex flex-col justify-between bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-outline-variant <?= $highlightText ? 'ring-2 ring-primary-container/30' : '' ?>"
