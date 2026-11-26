@@ -1,0 +1,19 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /hospital-san-marcos/
+
+    # Impedir listado de directorios
+    Options -Indexes
+
+    # Bloquear acceso directo a carpetas internas sensibles y archivos de dependencias
+    RewriteRule ^(config|database|app|views|vendor|storage)/ - [F,L]
+    RewriteRule ^composer\.(json|lock)$ - [F,L]
+
+    # Permitir acceso directo a archivos y directorios físicos existentes (ej. public/css, public/js, prueba.php)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Redirigir todas las rutas amigables al Front Controller index.php
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>

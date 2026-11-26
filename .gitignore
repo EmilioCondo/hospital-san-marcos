@@ -1,0 +1,7 @@
+/vendor/
+/storage/mail/*.eml
+/config/mail.php
+prueba.php
+.env
+.DS_Store
+Thumbs.db
