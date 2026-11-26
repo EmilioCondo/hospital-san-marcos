@@ -227,8 +227,8 @@ if (!defined('HSM_APP')) {
         </a>
         <a href="<?= e(url('/admin/servicios')) ?>" class="p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors border border-outline-variant space-y-1 focus-primary">
           <span class="material-symbols-outlined text-primary text-[22px]">local_hospital</span>
-          <p class="font-title-md text-body-md font-bold text-on-surface">Servicios y Fichas</p>
-          <p class="font-body-sm text-label-sm text-on-surface-variant">Tarjetas clínicas y preparación</p>
+          <p class="font-title-md text-body-md font-bold text-on-surface">Servicios</p>
+          <p class="font-body-sm text-label-sm text-on-surface-variant">Tarjetas clínicas y características</p>
         </a>
         <a href="<?= e(url('/admin/faqs')) ?>" class="p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors border border-outline-variant space-y-1 focus-primary">
           <span class="material-symbols-outlined text-primary text-[22px]">help</span>

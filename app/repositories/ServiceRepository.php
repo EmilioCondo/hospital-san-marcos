@@ -2,9 +2,9 @@
 declare(strict_types=1);
 
 /**
- * Repositorio PDO de Servicios Clínicos y Fichas Operativas
- * Tablas: `servicios`, `servicio_caracteristicas`, `servicio_fichas`, `servicio_ficha_items`
- * (Sin relación con `preguntas_frecuentes` ni con `citas`).
+ * Repositorio PDO de Servicios Clínicos
+ * Tablas: `servicios` y `servicio_caracteristicas`
+ * (Independiente de `preguntas_frecuentes` y de `citas`).
  */
 
 if (!defined('HSM_APP')) {
@@ -14,13 +14,14 @@ if (!defined('HSM_APP')) {
 
 class ServiceRepository
 {
-    /** @var array<string, mixed>|null */
+    /** @var array<int, array<string, mixed>>|null */
     private static ?array $cache = null;
 
     /**
-     * @return array<string, mixed>
+     * Obtiene los servicios principales del catálogo con sus características
+     * @return array<int, array<string, mixed>>
      */
-    private static function loadData(): array
+    public static function getAll(): array
     {
         if (self::$cache === null) {
             $features = [];
@@ -32,7 +33,7 @@ class ServiceRepository
 
             $services = [];
             foreach (Database::fetchAll(
-                'SELECT id, slug, nombre, etiqueta, clase_etiqueta, descripcion, icono, clave_ficha
+                'SELECT id, slug, nombre, etiqueta, clase_etiqueta, descripcion, icono
                    FROM servicios ORDER BY orden ASC, id ASC'
             ) as $s) {
                 $services[] = [
@@ -43,65 +44,13 @@ class ServiceRepository
                     'description' => (string) $s['descripcion'],
                     'icon'        => (string) $s['icono'],
                     'features'    => $features[(int) $s['id']] ?? [],
-                    'detailKey'   => (string) $s['clave_ficha'],
                 ];
             }
 
-            $items = [];
-            foreach (Database::fetchAll(
-                'SELECT ficha_id, tipo, descripcion FROM servicio_ficha_items ORDER BY ficha_id ASC, tipo ASC, orden ASC, id ASC'
-            ) as $i) {
-                $key = ((string) $i['tipo']) === 'alcance' ? 'scope' : 'prep';
-                $items[(int) $i['ficha_id']][$key][] = (string) $i['descripcion'];
-            }
-
-            $details = [];
-            foreach (Database::fetchAll(
-                'SELECT id, clave_ficha, titulo, etiqueta, descripcion, icono, aviso_tiempo, aviso_preparacion
-                   FROM servicio_fichas ORDER BY orden ASC, id ASC'
-            ) as $d) {
-                $details[(string) $d['clave_ficha']] = [
-                    'title'      => (string) $d['titulo'],
-                    'tag'        => (string) $d['etiqueta'],
-                    'desc'       => (string) $d['descripcion'],
-                    'icon'       => (string) $d['icono'],
-                    'scope'      => $items[(int) $d['id']]['scope'] ?? [],
-                    'prep'       => $items[(int) $d['id']]['prep'] ?? [],
-                    'timeNotice' => (string) $d['aviso_tiempo'],
-                    'prepNotice' => (string) $d['aviso_preparacion'],
-                ];
-            }
-
-            self::$cache = ['services' => $services, 'detailsMap' => $details];
+            self::$cache = $services;
         }
+
         return self::$cache;
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    public static function getAll(): array
-    {
-        $data = self::loadData();
-        return $data['services'] ?? [];
-    }
-
-    /**
-     * @return array<string, array<string, mixed>>
-     */
-    public static function getDetailsMap(): array
-    {
-        $data = self::loadData();
-        return $data['detailsMap'] ?? [];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public static function getDetailByKey(string $key = 'laboratorio'): array
-    {
-        $map = self::getDetailsMap();
-        return $map[$key] ?? $map['laboratorio'];
     }
 
     /**
@@ -118,7 +67,7 @@ class ServiceRepository
 
         $rows = Database::fetchAll(
             'SELECT id, slug, nombre AS name, etiqueta AS tag, clase_etiqueta AS tag_class,
-                    descripcion AS description, icono AS icon, clave_ficha AS detail_key, orden AS sort_order
+                    descripcion AS description, icono AS icon, orden AS sort_order
                FROM servicios ORDER BY orden ASC, id ASC'
         );
         foreach ($rows as &$r) {
@@ -136,7 +85,7 @@ class ServiceRepository
     {
         $rows = Database::fetchAll(
             'SELECT id, slug, nombre AS name, etiqueta AS tag, clase_etiqueta AS tag_class,
-                    descripcion AS description, icono AS icon, clave_ficha AS detail_key, orden AS sort_order
+                    descripcion AS description, icono AS icon, orden AS sort_order
                FROM servicios WHERE id = :id LIMIT 1',
             ['id' => $id]
         );
@@ -186,7 +135,6 @@ class ServiceRepository
                 'clase_etiqueta' => $data['tag_class'],
                 'descripcion'    => $data['description'],
                 'icono'          => $data['icon'],
-                'clave_ficha'    => $data['detail_key'],
                 'orden'          => $data['sort_order'],
             ];
 
@@ -195,14 +143,14 @@ class ServiceRepository
                 $pdo->prepare(
                     'UPDATE servicios
                         SET slug = :slug, nombre = :nombre, etiqueta = :etiqueta, clase_etiqueta = :clase_etiqueta,
-                            descripcion = :descripcion, icono = :icono, clave_ficha = :clave_ficha, orden = :orden
+                            descripcion = :descripcion, icono = :icono, orden = :orden
                       WHERE id = :id'
                 )->execute($params);
                 $svcId = $id;
             } else {
                 $pdo->prepare(
-                    'INSERT INTO servicios (slug, nombre, etiqueta, clase_etiqueta, descripcion, icono, clave_ficha, orden)
-                     VALUES (:slug, :nombre, :etiqueta, :clase_etiqueta, :descripcion, :icono, :clave_ficha, :orden)'
+                    'INSERT INTO servicios (slug, nombre, etiqueta, clase_etiqueta, descripcion, icono, orden)
+                     VALUES (:slug, :nombre, :etiqueta, :clase_etiqueta, :descripcion, :icono, :orden)'
                 )->execute($params);
                 $svcId = (int) $pdo->lastInsertId();
             }
@@ -237,117 +185,5 @@ class ServiceRepository
     {
         Database::execute('DELETE FROM servicios WHERE id = :id', ['id' => $id]);
         self::$cache = null;
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    public static function adminGetDetails(): array
-    {
-        $itemsMap = [];
-        foreach (Database::fetchAll(
-            'SELECT ficha_id, tipo, descripcion FROM servicio_ficha_items ORDER BY ficha_id ASC, tipo ASC, orden ASC, id ASC'
-        ) as $it) {
-            $k = ((string) $it['tipo']) === 'alcance' ? 'scope' : 'prep';
-            $itemsMap[(int) $it['ficha_id']][$k][] = (string) $it['descripcion'];
-        }
-
-        $rows = Database::fetchAll(
-            'SELECT id, clave_ficha AS detail_key, titulo AS title, etiqueta AS tag,
-                    descripcion AS description, icono AS icon,
-                    aviso_tiempo AS time_notice, aviso_preparacion AS prep_notice, orden AS sort_order
-               FROM servicio_fichas ORDER BY orden ASC, id ASC'
-        );
-        foreach ($rows as &$r) {
-            $did = (int) $r['id'];
-            $r['scope'] = $itemsMap[$did]['scope'] ?? [];
-            $r['prep']  = $itemsMap[$did]['prep'] ?? [];
-        }
-        unset($r);
-
-        return $rows;
-    }
-
-    /**
-     * @return array<string, mixed>|null
-     */
-    public static function adminFindDetailById(int $id): ?array
-    {
-        $rows = Database::fetchAll(
-            'SELECT id, clave_ficha AS detail_key, titulo AS title, etiqueta AS tag,
-                    descripcion AS description, icono AS icon,
-                    aviso_tiempo AS time_notice, aviso_preparacion AS prep_notice, orden AS sort_order
-               FROM servicio_fichas WHERE id = :id LIMIT 1',
-            ['id' => $id]
-        );
-        if ($rows === []) {
-            return null;
-        }
-        $det = $rows[0];
-        $itRows = Database::fetchAll(
-            'SELECT tipo, descripcion FROM servicio_ficha_items WHERE ficha_id = :id ORDER BY tipo ASC, orden ASC, id ASC',
-            ['id' => $id]
-        );
-        $det['scope'] = [];
-        $det['prep']  = [];
-        foreach ($itRows as $it) {
-            $k = ((string) $it['tipo']) === 'alcance' ? 'scope' : 'prep';
-            $det[$k][] = (string) $it['descripcion'];
-        }
-        return $det;
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     * @param array<int, string>   $scopeItems
-     * @param array<int, string>   $prepItems
-     */
-    public static function adminUpdateDetail(int $id, array $data, array $scopeItems, array $prepItems): void
-    {
-        $pdo = Database::getConnection();
-
-        try {
-            $pdo->beginTransaction();
-
-            $pdo->prepare(
-                'UPDATE servicio_fichas
-                    SET titulo = :titulo, etiqueta = :etiqueta, descripcion = :descripcion,
-                        icono = :icono, aviso_tiempo = :aviso_tiempo, aviso_preparacion = :aviso_preparacion
-                  WHERE id = :id'
-            )->execute([
-                'titulo'            => $data['title'],
-                'etiqueta'          => $data['tag'],
-                'descripcion'       => $data['description'],
-                'icono'             => $data['icon'],
-                'aviso_tiempo'      => $data['time_notice'],
-                'aviso_preparacion' => $data['prep_notice'],
-                'id'                => $id,
-            ]);
-
-            $pdo->prepare('DELETE FROM servicio_ficha_items WHERE ficha_id = :id')->execute(['id' => $id]);
-
-            $insItem = $pdo->prepare(
-                'INSERT INTO servicio_ficha_items (ficha_id, tipo, descripcion, orden)
-                 VALUES (:ficha_id, :tipo, :descripcion, :orden)'
-            );
-
-            $ord = 0;
-            foreach ($scopeItems as $item) {
-                $insItem->execute(['ficha_id' => $id, 'tipo' => 'alcance', 'descripcion' => $item, 'orden' => $ord++]);
-            }
-            $ord = 0;
-            foreach ($prepItems as $item) {
-                $insItem->execute(['ficha_id' => $id, 'tipo' => 'preparacion', 'descripcion' => $item, 'orden' => $ord++]);
-            }
-
-            $pdo->commit();
-            self::$cache = null;
-        } catch (PDOException $e) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            error_log('[HSM][SERVICE_DETAIL_ADMIN] ' . $e->getMessage());
-            throw new DataSourceException('No se pudo actualizar la ficha operativa.');
-        }
     }
 }

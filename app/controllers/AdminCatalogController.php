@@ -235,11 +235,10 @@ class AdminCatalogController
 
     public static function handleServices(string $method): void
     {
-        $adminUser     = self::requireCatalogRole();
-        $formErrors    = [];
-        $editingSvc    = null;
-        $editingDetail = null;
-        $showSvcForm   = isset($_GET['new']) || isset($_GET['edit']);
+        $adminUser   = self::requireCatalogRole();
+        $formErrors  = [];
+        $editingSvc  = null;
+        $showSvcForm = isset($_GET['new']) || isset($_GET['edit']);
 
         if (isset($_GET['edit'])) {
             $editingSvc = ServiceRepository::adminFindServiceById((int) $_GET['edit']);
@@ -248,18 +247,11 @@ class AdminCatalogController
             }
         }
 
-        if (isset($_GET['edit_detail'])) {
-            $editingDetail = ServiceRepository::adminFindDetailById((int) $_GET['edit_detail']);
-            if ($editingDetail === null) {
-                self::flashAndRedirect('/admin/servicios', 'error', 'La ficha operativa solicitada no existe.');
-            }
-        }
-
         $allowedTagClasses = [
-            'bg-surface-container-low text-primary font-semibold' => 'Estándar institucional (Azul clínico)',
-            'bg-tertiary text-on-tertiary font-bold uppercase'    => 'Urgencia / Destacado crítico (Rojo)',
+            'bg-surface-container-low text-primary font-semibold'             => 'Estándar institucional (Azul clínico)',
+            'bg-secondary-container text-on-secondary-container font-semibold' => 'Destacado diagnóstico (Verde)',
+            'bg-tertiary text-on-tertiary font-bold uppercase'                => 'Urgencia / Destacado crítico (Rojo)',
         ];
-        $allowedDetailKeys = ['laboratorio', 'imagen', 'cirugia', 'hospitalizacion', 'emergencias', 'consulta'];
 
         if ($method === 'POST') {
             if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
@@ -274,126 +266,66 @@ class AdminCatalogController
                 self::flashAndRedirect('/admin/servicios', 'success', 'Servicio eliminado del catálogo.');
             }
 
-            if ($action === 'save_detail' && $postId > 0) {
-                $existingDet = ServiceRepository::adminFindDetailById($postId);
-                if ($existingDet === null) {
-                    self::flashAndRedirect('/admin/servicios', 'error', 'Ficha operativa no encontrada.');
-                }
+            $showSvcForm = true;
+            $editId      = $postId > 0 ? $postId : null;
+            $name        = self::cleanLine($_POST['name'] ?? '', 150);
+            $rawSlug     = self::cleanLine($_POST['slug'] ?? '', 100);
+            $slug        = $rawSlug !== '' ? Security::slugify($rawSlug) : Security::slugify($name);
+            $tag         = self::cleanLine($_POST['tag'] ?? '', 80);
+            $tagClass    = trim((string) ($_POST['tag_class'] ?? ''));
+            $icon        = self::cleanLine($_POST['icon'] ?? '', 60);
+            $desc        = self::cleanText($_POST['description'] ?? '');
+            $sortOrder   = max(1, (int) ($_POST['sort_order'] ?? 7));
+            $features    = self::splitLines($_POST['features_lines'] ?? '');
 
-                $title      = self::cleanLine($_POST['title'] ?? '', 200);
-                $tag        = self::cleanLine($_POST['tag'] ?? '', 120);
-                $icon       = self::cleanLine($_POST['icon'] ?? '', 60);
-                $desc       = self::cleanText($_POST['description'] ?? '');
-                $timeNotice = self::cleanLine($_POST['time_notice'] ?? '', 255);
-                $prepNotice = self::cleanLine($_POST['prep_notice'] ?? '', 255);
-                $scopeItems = self::splitLines($_POST['scope_lines'] ?? '');
-                $prepItems  = self::splitLines($_POST['prep_lines'] ?? '');
-
-                if (mb_strlen($title, 'UTF-8') < 4) {
-                    $formErrors[] = 'Ingresa el título de la ficha operativa.';
-                }
-                if ($tag === '' || $timeNotice === '' || $prepNotice === '') {
-                    $formErrors[] = 'Completa la etiqueta superior y los avisos de tiempos y preparación.';
-                }
-                if ($icon === '' || preg_match('/^[a-z0-9_]+$/', $icon) !== 1) {
-                    $formErrors[] = 'Ingresa un ícono Material Symbols válido.';
-                }
-                if (mb_strlen($desc, 'UTF-8') < 10) {
-                    $formErrors[] = 'Ingresa la descripción técnica de la ficha.';
-                }
-                if ($scopeItems === [] || $prepItems === []) {
-                    $formErrors[] = 'Ingresa al menos un ítem en Alcance y uno en Preparación (uno por línea).';
-                }
-
-                $detData = [
-                    'id'          => $postId,
-                    'detail_key'  => $existingDet['detail_key'],
-                    'title'       => $title,
-                    'tag'         => $tag,
-                    'description' => $desc,
-                    'icon'        => $icon,
-                    'time_notice' => $timeNotice,
-                    'prep_notice' => $prepNotice,
-                    'scope'       => $scopeItems,
-                    'prep'        => $prepItems,
-                ];
-
-                if ($formErrors === []) {
-                    ServiceRepository::adminUpdateDetail($postId, $detData, $scopeItems, $prepItems);
-                    self::flashAndRedirect('/admin/servicios', 'success', "Ficha operativa «{$title}» actualizada.");
-                }
-
-                http_response_code(422);
-                $editingDetail = $detData;
-            } else {
-                // Guardar servicio de cuadrícula
-                $showSvcForm = true;
-                $editId      = $postId > 0 ? $postId : null;
-                $name        = self::cleanLine($_POST['name'] ?? '', 150);
-                $rawSlug     = self::cleanLine($_POST['slug'] ?? '', 100);
-                $slug        = $rawSlug !== '' ? Security::slugify($rawSlug) : Security::slugify($name);
-                $tag         = self::cleanLine($_POST['tag'] ?? '', 80);
-                $tagClass    = trim((string) ($_POST['tag_class'] ?? ''));
-                $icon        = self::cleanLine($_POST['icon'] ?? '', 60);
-                $detailKey   = self::cleanLine($_POST['detail_key'] ?? '', 40);
-                $desc        = self::cleanText($_POST['description'] ?? '');
-                $sortOrder   = max(1, (int) ($_POST['sort_order'] ?? 7));
-                $features    = self::splitLines($_POST['features_lines'] ?? '');
-
-                if (mb_strlen($name, 'UTF-8') < 3) {
-                    $formErrors[] = 'Ingresa el nombre del servicio clínico.';
-                }
-                if ($tag === '') {
-                    $formErrors[] = 'Ingresa el texto de la etiqueta superior.';
-                }
-                if (!isset($allowedTagClasses[$tagClass])) {
-                    $tagClass = 'bg-surface-container-low text-primary font-semibold';
-                }
-                if ($icon === '' || preg_match('/^[a-z0-9_]+$/', $icon) !== 1) {
-                    $formErrors[] = 'Ingresa un ícono Material Symbols válido.';
-                }
-                if (!in_array($detailKey, $allowedDetailKeys, true)) {
-                    $formErrors[] = 'Selecciona una clave de ficha operativa válida.';
-                }
-                if (mb_strlen($desc, 'UTF-8') < 10) {
-                    $formErrors[] = 'Ingresa una descripción del servicio de al menos 10 caracteres.';
-                }
-                if ($features === []) {
-                    $formErrors[] = 'Ingresa al menos una característica destacada (una por línea).';
-                }
-                if (ServiceRepository::serviceSlugExists($slug, $editId)) {
-                    $formErrors[] = "El slug «{$slug}» ya pertenece a otro servicio.";
-                }
-
-                $svcData = [
-                    'id'          => $editId,
-                    'slug'        => $slug,
-                    'name'        => $name,
-                    'tag'         => $tag,
-                    'tag_class'   => $tagClass,
-                    'description' => $desc,
-                    'icon'        => $icon,
-                    'detail_key'  => $detailKey,
-                    'sort_order'  => $sortOrder,
-                    'features'    => $features,
-                ];
-
-                if ($formErrors === []) {
-                    ServiceRepository::adminSaveService($editId, $svcData, $features);
-                    self::flashAndRedirect(
-                        '/admin/servicios',
-                        'success',
-                        $editId !== null ? "Servicio «{$name}» actualizado." : "Servicio «{$name}» agregado."
-                    );
-                }
-
-                http_response_code(422);
-                $editingSvc = $svcData;
+            if (mb_strlen($name, 'UTF-8') < 3) {
+                $formErrors[] = 'Ingresa el nombre del servicio clínico.';
             }
+            if ($tag === '') {
+                $formErrors[] = 'Ingresa el texto de la etiqueta superior.';
+            }
+            if (!isset($allowedTagClasses[$tagClass])) {
+                $tagClass = 'bg-surface-container-low text-primary font-semibold';
+            }
+            if ($icon === '' || preg_match('/^[a-z0-9_]+$/', $icon) !== 1) {
+                $formErrors[] = 'Ingresa un ícono Material Symbols válido.';
+            }
+            if (mb_strlen($desc, 'UTF-8') < 10) {
+                $formErrors[] = 'Ingresa una descripción del servicio de al menos 10 caracteres.';
+            }
+            if ($features === []) {
+                $formErrors[] = 'Ingresa al menos una característica destacada (una por línea).';
+            }
+            if (ServiceRepository::serviceSlugExists($slug, $editId)) {
+                $formErrors[] = "El slug «{$slug}» ya pertenece a otro servicio.";
+            }
+
+            $svcData = [
+                'id'          => $editId,
+                'slug'        => $slug,
+                'name'        => $name,
+                'tag'         => $tag,
+                'tag_class'   => $tagClass,
+                'description' => $desc,
+                'icon'        => $icon,
+                'sort_order'  => $sortOrder,
+                'features'    => $features,
+            ];
+
+            if ($formErrors === []) {
+                ServiceRepository::adminSaveService($editId, $svcData, $features);
+                self::flashAndRedirect(
+                    '/admin/servicios',
+                    'success',
+                    $editId !== null ? "Servicio «{$name}» actualizado." : "Servicio «{$name}» agregado."
+                );
+            }
+
+            http_response_code(422);
+            $editingSvc = $svcData;
         }
 
         $services   = ServiceRepository::adminGetServices();
-        $details    = ServiceRepository::adminGetDetails();
         $adminFlash = Security::pullFlash('admin_flash');
 
         self::render(
@@ -401,7 +333,7 @@ class AdminCatalogController
             'Catálogo de Servicios | Panel Hospital San Marcos',
             'servicios',
             $adminUser,
-            compact('services', 'details', 'editingSvc', 'editingDetail', 'showSvcForm', 'allowedTagClasses', 'allowedDetailKeys', 'formErrors', 'adminFlash')
+            compact('services', 'editingSvc', 'showSvcForm', 'allowedTagClasses', 'formErrors', 'adminFlash')
         );
     }
 

@@ -6,12 +6,10 @@ if (!defined('HSM_APP')) {
     exit('Acceso directo no permitido.');
 }
 
-$currentPage    = 'Servicios';
-$services       = ServiceRepository::getAll();
-$serviceDetails = ServiceRepository::getDetailsMap();
-$faqs           = FaqRepository::getAll();
-$defaultTab     = 'laboratorio';
-$defaultFaqId   = 'emergencias-24h';
+$currentPage  = 'Servicios';
+$services     = ServiceRepository::getAll();
+$faqs         = FaqRepository::getAll();
+$defaultFaqId = 'emergencias-24h';
 ?>
 <div class="hospital-page-hero flex flex-col w-full">
   <!-- ENCABEZADO INSTITUCIONAL -->
@@ -117,13 +115,6 @@ $defaultFaqId   = 'emergencias-24h';
               </div>
             </div>
             <div class="mt-space-xl pt-space-md flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                data-scroll-detail="<?= e($service['detailKey']) ?>"
-                class="inline-flex items-center justify-center font-title-md text-label-md font-semibold text-primary px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors"
-              >
-                Más información
-              </button>
               <?php if ($service['id'] === 'emergencias-24h'): ?>
                 <a
                   class="inline-flex items-center justify-center font-title-md text-label-md font-semibold bg-tertiary text-on-tertiary px-4 py-2 rounded-full hover:bg-on-tertiary-container transition-colors shadow-sm ml-auto"
@@ -192,218 +183,10 @@ $defaultFaqId   = 'emergencias-24h';
               >
                 Solicitar cita de valoración
               </a>
-              <button
-                type="button"
-                data-scroll-detail="hospitalizacion"
-                class="inline-flex items-center justify-center font-title-md text-label-md font-semibold text-primary px-6 py-3 rounded-full bg-surface-container-lowest hover:bg-surface-container-high transition-colors text-center border border-outline-variant"
-              >
-                Más información de estancia
-              </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- SECCIÓN INTERACTIVA: FICHA OPERATIVA Y PREPARACIÓN AL PACIENTE -->
-  <section class="py-space-2xl bg-surface relative" id="interactive-detail-section">
-    <div class="max-w-7xl mx-auto px-gutter">
-      <div class="mb-space-xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm uppercase font-semibold mb-2">
-          <span class="material-symbols-outlined text-[16px]">visibility</span>
-          Estructura de Servicio Ampliado
-        </div>
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">
-          Ficha Operativa y Preparación al Paciente
-        </h2>
-        <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mt-1">
-          Módulo interactivo que despliega los requerimientos clínicos, alcances diagnósticos y flujos de atención institucional.
-        </p>
-      </div>
-
-      <!-- TABS DE SERVICIO PARA EXPLORAR -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-space-sm mb-space-lg no-scrollbar" role="tablist">
-        <button
-          type="button"
-          data-detail-tab="laboratorio"
-          class="px-5 py-2.5 rounded-full font-title-md text-label-md font-semibold transition-all shrink-0 bg-primary text-on-primary shadow-sm"
-        >
-          Laboratorio Clínico
-        </button>
-        <button
-          type="button"
-          data-detail-tab="imagen"
-          class="px-5 py-2.5 rounded-full font-title-md text-label-md font-semibold transition-all shrink-0 bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
-        >
-          Imagenología &amp; Rayos X
-        </button>
-        <button
-          type="button"
-          data-detail-tab="cirugia"
-          class="px-5 py-2.5 rounded-full font-title-md text-label-md font-semibold transition-all shrink-0 bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
-        >
-          Cirugía Laparoscópica
-        </button>
-        <button
-          type="button"
-          data-detail-tab="hospitalizacion"
-          class="px-5 py-2.5 rounded-full font-title-md text-label-md font-semibold transition-all shrink-0 bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
-        >
-          Hospitalización
-        </button>
-      </div>
-
-      <!-- CARDS EXPANDIBLES POR CADA FICHA OPERATIVA -->
-      <?php foreach ($serviceDetails as $tabKey => $detailData): ?>
-        <div
-          data-detail-panel="<?= e($tabKey) ?>"
-          class="<?= $tabKey === $defaultTab ? '' : 'hidden ' ?>rounded-2xl bg-surface-container-lowest p-space-xl shadow-md transition-all duration-300 border border-outline-variant animate-fadeIn"
-        >
-          <!-- HEADER DEL DETALLE -->
-          <div class="flex flex-col md:flex-row md:items-center justify-between pb-space-lg gap-space-md border-b border-surface-container">
-            <div class="flex items-start gap-space-md">
-              <div class="w-16 h-16 rounded-2xl bg-surface-container-high text-primary flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-[32px]"><?= e($detailData['icon']) ?></span>
-              </div>
-              <div>
-                <span class="font-label-sm text-label-sm text-secondary uppercase font-bold tracking-wider">
-                  <?= e($detailData['tag']) ?>
-                </span>
-                <h3 class="font-headline-md text-headline-md text-on-surface mt-0.5">
-                  <?= e($detailData['title']) ?>
-                </h3>
-                <p class="font-body-md text-body-md text-on-surface-variant mt-1 max-w-2xl">
-                  <?= e($detailData['desc']) ?>
-                </p>
-              </div>
-            </div>
-            <div class="flex items-center gap-space-sm shrink-0">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm font-bold">
-                <span class="w-2 h-2 rounded-full bg-secondary"></span>
-                Atención hoy disponible
-              </span>
-            </div>
-          </div>
-
-          <!-- 3 BLOQUES ESTRUCTURALES -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-space-lg pt-space-lg">
-            <!-- BLOQUE 1: ALCANCE DEL SERVICIO -->
-            <div class="rounded-xl bg-surface-container-low p-space-lg flex flex-col justify-between border border-outline-variant">
-              <div>
-                <div class="flex items-center gap-2 mb-space-sm text-primary">
-                  <span class="material-symbols-outlined text-[24px]">checklist_rtl</span>
-                  <h4 class="font-title-lg text-title-lg font-bold text-on-surface">
-                    Alcance del Servicio
-                  </h4>
-                </div>
-                <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
-                  Pruebas y procedimientos procesados in situ con trazabilidad y rigor clínico:
-                </p>
-                <ul class="space-y-2.5 font-body-sm text-body-sm text-on-surface">
-                  <?php foreach ($detailData['scope'] as $item): ?>
-                    <li class="flex items-start gap-2">
-                      <span class="material-symbols-outlined text-[18px] text-primary shrink-0 mt-0.5">
-                        check_circle
-                      </span>
-                      <span><?= e($item) ?></span>
-                    </li>
-                  <?php endforeach; ?>
-                </ul>
-              </div>
-              <div class="mt-space-md pt-space-sm border-t border-outline-variant">
-                <span class="font-label-sm text-label-sm text-outline uppercase font-semibold">
-                  Tiempos de informe
-                </span>
-                <p class="font-body-sm text-body-sm font-semibold text-primary">
-                  <?= e($detailData['timeNotice']) ?>
-                </p>
-              </div>
-            </div>
-
-            <!-- BLOQUE 2: REQUISITOS Y PREPARACIÓN DEL PACIENTE -->
-            <div class="rounded-xl bg-surface-container-low p-space-lg flex flex-col justify-between border border-outline-variant">
-              <div>
-                <div class="flex items-center gap-2 mb-space-sm text-primary">
-                  <span class="material-symbols-outlined text-[24px]">health_and_safety</span>
-                  <h4 class="font-title-lg text-title-lg font-bold text-on-surface">
-                    Requisitos y Preparación
-                  </h4>
-                </div>
-                <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
-                  Recomendaciones para garantizar la fiabilidad del resultado analítico y quirúrgico:
-                </p>
-                <ul class="space-y-2.5 font-body-sm text-body-sm text-on-surface">
-                  <?php foreach ($detailData['prep'] as $item): ?>
-                    <li class="flex items-start gap-2">
-                      <span class="material-symbols-outlined text-[18px] text-primary shrink-0 mt-0.5">
-                        info
-                      </span>
-                      <span><?= e($item) ?></span>
-                    </li>
-                  <?php endforeach; ?>
-                </ul>
-              </div>
-              <div class="mt-space-md pt-space-sm border-t border-outline-variant">
-                <span class="font-label-sm text-label-sm text-outline uppercase font-semibold">
-                  Orientación Adicional
-                </span>
-                <p class="font-body-sm text-body-sm font-semibold text-primary">
-                  <?= e($detailData['prepNotice']) ?>
-                </p>
-              </div>
-            </div>
-
-            <!-- BLOQUE 3: HORARIOS Y ATENCIÓN -->
-            <div class="rounded-xl bg-surface-container-low p-space-lg flex flex-col justify-between border border-outline-variant">
-              <div>
-                <div class="flex items-center gap-2 mb-space-sm text-primary">
-                  <span class="material-symbols-outlined text-[24px]">schedule</span>
-                  <h4 class="font-title-lg text-title-lg font-bold text-on-surface">
-                    Horarios y Atención
-                  </h4>
-                </div>
-                <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
-                  Disponibilidad continua para pacientes ambulatorios y de guardia:
-                </p>
-                <div class="space-y-3 font-body-sm text-body-sm">
-                  <div class="p-3 rounded-lg bg-surface flex items-center justify-between border border-outline-variant">
-                    <div>
-                      <span class="font-semibold text-on-surface block">Lunes a Sábado</span>
-                      <span class="text-on-surface-variant text-xs">Atención programada</span>
-                    </div>
-                    <span class="font-bold text-primary">06:30 - 18:30</span>
-                  </div>
-                  <div class="p-3 rounded-lg bg-surface flex items-center justify-between border border-outline-variant">
-                    <div>
-                      <span class="font-semibold text-on-surface block">Domingos y Feriados</span>
-                      <span class="text-on-surface-variant text-xs">Muestras y urgencias</span>
-                    </div>
-                    <span class="font-bold text-primary">07:00 - 14:00</span>
-                  </div>
-                  <div class="p-3 rounded-lg bg-error-container text-on-error-container flex items-center justify-between">
-                    <div>
-                      <span class="font-semibold block">Emergencias Hospitalarias</span>
-                      <span class="text-xs">Pacientes en observación / UCI</span>
-                    </div>
-                    <span class="font-bold">24 Horas</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-space-lg pt-space-sm">
-                <a
-                  href="<?= e(url('/agendar-cita')) ?>"
-                  class="w-full inline-flex items-center justify-center gap-2 font-title-md text-label-md font-semibold bg-primary text-on-primary py-3 px-4 rounded-xl hover:bg-on-primary-container transition-all shadow-sm"
-                >
-                  <span>Coordinar atención en este servicio</span>
-                  <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      <?php endforeach; ?>
     </div>
   </section>
 

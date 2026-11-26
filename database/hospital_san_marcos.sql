@@ -1,5 +1,5 @@
 -- =====================================================================
--- Hospital San Marcos - Esquema relacional MySQL/MariaDB (12 tablas en español)
+-- Hospital San Marcos - Esquema relacional MySQL/MariaDB (10 tablas en español)
 -- Base de datos: hospital_san_marcos (utf8mb4 / InnoDB)
 -- =====================================================================
 
@@ -15,15 +15,11 @@ DROP TABLE IF EXISTS `citas`;
 DROP TABLE IF EXISTS `mensajes_contacto`;
 DROP TABLE IF EXISTS `usuarios_admin`;
 DROP TABLE IF EXISTS `medico_especialidades`;
-DROP TABLE IF EXISTS `servicio_ficha_items`;
-DROP TABLE IF EXISTS `servicio_fichas`;
 DROP TABLE IF EXISTS `servicio_caracteristicas`;
 DROP TABLE IF EXISTS `servicios`;
 DROP TABLE IF EXISTS `preguntas_frecuentes`;
 DROP TABLE IF EXISTS `medicos`;
 DROP TABLE IF EXISTS `especialidades`;
-DROP TABLE IF EXISTS `specialty_category_map`;
-DROP TABLE IF EXISTS `specialty_categories`;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -86,7 +82,6 @@ CREATE TABLE `servicios` (
   `clase_etiqueta` VARCHAR(200) NOT NULL,
   `descripcion`    TEXT NOT NULL,
   `icono`          VARCHAR(60) NOT NULL,
-  `clave_ficha`    VARCHAR(40) NOT NULL,
   `orden`          INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_servicios_slug` (`slug`),
@@ -104,34 +99,7 @@ CREATE TABLE `servicio_caracteristicas` (
   CONSTRAINT `fk_sc_servicio` FOREIGN KEY (`servicio_id`) REFERENCES `servicios` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 6. Fichas operativas de servicios
-CREATE TABLE `servicio_fichas` (
-  `id`                INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `clave_ficha`       VARCHAR(40) NOT NULL,
-  `titulo`            VARCHAR(200) NOT NULL,
-  `etiqueta`          VARCHAR(120) NOT NULL,
-  `descripcion`       TEXT NOT NULL,
-  `icono`             VARCHAR(60) NOT NULL,
-  `aviso_tiempo`      VARCHAR(255) NOT NULL,
-  `aviso_preparacion` VARCHAR(255) NOT NULL,
-  `orden`             INT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_servicio_fichas_clave` (`clave_ficha`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 7. Ítems de alcance y preparación de fichas operativas
-CREATE TABLE `servicio_ficha_items` (
-  `id`          INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `ficha_id`    INT UNSIGNED NOT NULL,
-  `tipo`        ENUM('alcance','preparacion') NOT NULL,
-  `descripcion` VARCHAR(255) NOT NULL,
-  `orden`       TINYINT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `idx_sfi_ficha` (`ficha_id`, `tipo`, `orden`),
-  CONSTRAINT `fk_sfi_ficha` FOREIGN KEY (`ficha_id`) REFERENCES `servicio_fichas` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 8. Preguntas frecuentes (independientes de servicios)
+-- 6. Preguntas frecuentes (independientes de servicios)
 CREATE TABLE `preguntas_frecuentes` (
   `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `slug`      VARCHAR(100) NOT NULL,
@@ -281,13 +249,13 @@ INSERT INTO `medico_especialidades` (`medico_id`,`especialidad_id`,`es_principal
   ((SELECT `id` FROM `medicos` WHERE `slug`='abdon-pacurucu'),(SELECT `id` FROM `especialidades` WHERE `slug`='gastroenterologia'),0),
   ((SELECT `id` FROM `medicos` WHERE `slug`='karen-cobos'),(SELECT `id` FROM `especialidades` WHERE `slug`='diabetologia'),0);
 
-INSERT INTO `servicios` (`slug`,`nombre`,`etiqueta`,`clase_etiqueta`,`descripcion`,`icono`,`clave_ficha`,`orden`) VALUES
-  ('emergencias-24h','Emergencias 24 horas y ambulancia','Atención 24/7','bg-tertiary text-on-tertiary font-bold uppercase','Atención médica inmediata para urgencias y emergencias con equipo de guardia y soporte móvil permanente.','emergency','emergencias',1),
-  ('consulta-externa','Consulta externa','Agenda programada','bg-surface-container-low text-primary font-semibold','Valoración médica integral con diversas especialidades para diagnóstico, seguimiento y tratamiento programado.','stethoscope','consulta',2),
-  ('cirugia-general-laparoscopica','Cirugía general y laparoscópica','Quirófano moderno','bg-surface-container-low text-primary font-semibold','Procedimientos quirúrgicos seguros y mínimamente invasivos con quirófano moderno y valoración prequirúrgica.','precision_manufacturing','cirugia',3),
-  ('ginecologia-obstetricia','Ginecología y obstetricia','Materno-Fetal','bg-surface-container-low text-primary font-semibold','Cuidado integral de la salud femenina, control prenatal, atención del parto y patologías ginecológicas.','pregnant_woman','ginecologia',4),
-  ('laboratorio-clinico','Laboratorio clínico','Resultados rápidos','bg-secondary-container text-on-secondary-container font-semibold','Exámenes de rutina, pruebas especiales, hematología, bioquímica y microbiología con entrega oportuna de resultados.','science','laboratorio',5),
-  ('imagenologia','Imagenología','Diagnóstico visual','bg-surface-container-low text-primary font-semibold','Diagnóstico preciso con rayos X digitales, ecografías de alta resolución y tomografía axial computarizada.','radiology','imagen',6);
+INSERT INTO `servicios` (`slug`,`nombre`,`etiqueta`,`clase_etiqueta`,`descripcion`,`icono`,`orden`) VALUES
+  ('emergencias-24h','Emergencias 24 horas y ambulancia','Atención 24/7','bg-tertiary text-on-tertiary font-bold uppercase','Atención médica inmediata para urgencias y emergencias con equipo de guardia y soporte móvil permanente.','emergency',1),
+  ('consulta-externa','Consulta externa','Agenda programada','bg-surface-container-low text-primary font-semibold','Valoración médica integral con diversas especialidades para diagnóstico, seguimiento y tratamiento programado.','stethoscope',2),
+  ('cirugia-general-laparoscopica','Cirugía general y laparoscópica','Quirófano moderno','bg-surface-container-low text-primary font-semibold','Procedimientos quirúrgicos seguros y mínimamente invasivos con quirófano moderno y valoración prequirúrgica.','precision_manufacturing',3),
+  ('ginecologia-obstetricia','Ginecología y obstetricia','Materno-Fetal','bg-surface-container-low text-primary font-semibold','Cuidado integral de la salud femenina, control prenatal, atención del parto y patologías ginecológicas.','pregnant_woman',4),
+  ('laboratorio-clinico','Laboratorio clínico','Resultados rápidos','bg-secondary-container text-on-secondary-container font-semibold','Exámenes de rutina, pruebas especiales, hematología, bioquímica y microbiología con entrega oportuna de resultados.','science',5),
+  ('imagenologia','Imagenología','Diagnóstico visual','bg-surface-container-low text-primary font-semibold','Diagnóstico preciso con rayos X digitales, ecografías de alta resolución y tomografía axial computarizada.','radiology',6);
 
 INSERT INTO `servicio_caracteristicas` (`servicio_id`,`caracteristica`,`orden`) VALUES
   ((SELECT `id` FROM `servicios` WHERE `slug`='emergencias-24h'),'Unidad móvil de soporte vital disponible',0),
@@ -302,46 +270,6 @@ INSERT INTO `servicio_caracteristicas` (`servicio_id`,`caracteristica`,`orden`) 
   ((SELECT `id` FROM `servicios` WHERE `slug`='laboratorio-clinico'),'Toma de muestras desde las 06:30',1),
   ((SELECT `id` FROM `servicios` WHERE `slug`='imagenologia'),'Baja radiación con sensor digital',0),
   ((SELECT `id` FROM `servicios` WHERE `slug`='imagenologia'),'Informes avalados por radiólogos',1);
-
-INSERT INTO `servicio_fichas` (`clave_ficha`,`titulo`,`etiqueta`,`descripcion`,`icono`,`aviso_tiempo`,`aviso_preparacion`,`orden`) VALUES
-  ('laboratorio','Laboratorio Clínico Automatizado','Unidad Diagnóstica Nivel II','Área técnica de bioanálisis equipada con analizadores hematológicos y bioquímicos con calibración diaria y control de calidad internacional.','science','Rutina: 2 a 4 horas • Especiales: 24h','Disponible en zona urbana de Pasaje con previa cita',1),
-  ('imagen','Imagenología y Radiodiagnóstico Digital','Tecnología de Diagnóstico Visual','Equipos de baja radiación y ecografía doppler de alta resolución con interpretación oportuna de médicos radiólogos certificados.','radiology','Informes inmediatos para urgencias • Programados: 2 a 6 horas','Protocolo de baja dosis para seguridad del paciente pediátrico y adulto',2),
-  ('cirugia','Cirugía General y Laparoscópica Mínimamente Invasiva','Centro Quirúrgico Acreditado','Quirófano moderno equipado con torres laparoscópicas HD, electrocauterios bipolares y monitorización anestesiológica continua.','precision_manufacturing','Quirófanos disponibles 24/7 para emergencias quirúrgicas','Recuperación asistida con enfermería especializada y analgesia continua',3),
-  ('hospitalizacion','Hospitalización y Recuperación Asistida','Cuidado Clínico y Seguridad','Habitaciones individuales y compartidas con diseño ergonómico, climatización médica, gases medicinales y enfermería permanente.','bed','Monitoreo clínico permanente las 24 horas del día','Acceso inclusivo, zona de descanso para acompañante y climatización',4);
-
-INSERT INTO `servicio_ficha_items` (`ficha_id`,`tipo`,`descripcion`,`orden`) VALUES
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='laboratorio'),'alcance','Hematología completa y coagulación',0),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='laboratorio'),'alcance','Bioquímica sanguínea (glucosa, perfil lipídico, renal, hepático)',1),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='laboratorio'),'alcance','Inmunología, hormonas y marcadores tiroideos',2),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='laboratorio'),'alcance','Microbiología, urocultivos y coproanálisis',3),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='laboratorio'),'preparacion','Ayuno requerido de 8 a 12 horas para pruebas metabólicas',0),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='laboratorio'),'preparacion','Evitar ingesta de alcohol y grasas la noche anterior',1),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='laboratorio'),'preparacion','Presentar cédula de identidad y orden médica si aplica',2),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='laboratorio'),'preparacion','Notificar toma de medicamentos continuos al personal',3),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='imagen'),'alcance','Rayos X digitales de tórax, óseos y articulaciones',0),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='imagen'),'alcance','Ecografías abdominales, pélvicas, renales y de tejidos blandos',1),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='imagen'),'alcance','Ecografía obstétrica estructural y Doppler feto-placentario',2),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='imagen'),'alcance','Tomografía axial computarizada programada',3),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='imagen'),'preparacion','Retirar joyas, hebillas u objetos metálicos previo a rayos X',0),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='imagen'),'preparacion','Ecografía pélvica/renal: vejiga llena (beber agua 45 min antes)',1),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='imagen'),'preparacion','Ecografía abdominal superior: 6 horas de ayuno',2),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='imagen'),'preparacion','Traer estudios previos para análisis comparativo',3),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='cirugia'),'alcance','Colecistectomía laparoscópica (extracción de vesícula)',0),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='cirugia'),'alcance','Apendicectomía y plastias de pared abdominal (hernias)',1),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='cirugia'),'alcance','Cirugía ginecológica y cesáreas programadas o de urgencia',2),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='cirugia'),'alcance','Procedimientos ambulatorios y biopsias quirúrgicas',3),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='cirugia'),'preparacion','Valoración preanestésica obligatoria previa a la cirugía',0),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='cirugia'),'preparacion','Ayuno absoluto de 8 horas antes del ingreso a quirófano',1),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='cirugia'),'preparacion','Consentimiento informado firmado por el paciente o familiar',2),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='cirugia'),'preparacion','Disponer de un acompañante adulto responsable para el alta',3),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='hospitalizacion'),'alcance','Manejo de postoperatorio inmediato y mediato',0),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='hospitalizacion'),'alcance','Tratamientos antibióticos intravenosos y sueroterapia',1),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='hospitalizacion'),'alcance','Control cardiorrespiratorio y hemodinámico continuo',2),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='hospitalizacion'),'alcance','Atención integral del puerperio y recién nacido',3),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='hospitalizacion'),'preparacion','Artículos de aseo personal y ropa cómoda de descanso',0),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='hospitalizacion'),'preparacion','Documento de identidad y carpeta con historial médico previo',1),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='hospitalizacion'),'preparacion','Registro de un familiar titular para informes médicos diarios',2),
-  ((SELECT `id` FROM `servicio_fichas` WHERE `clave_ficha`='hospitalizacion'),'preparacion','Cumplimiento de las normas de bioseguridad institucional',3);
 
 INSERT INTO `preguntas_frecuentes` (`slug`,`pregunta`,`respuesta`,`orden`) VALUES
   ('emergencias-24h','¿Cómo funciona el servicio de emergencias 24 horas?','Nuestro servicio de emergencias opera de manera ininterrumpida los 365 días del año con médico de guardia residente, enfermería y laboratorio de respuesta inmediata. El ingreso se realiza mediante triaje clínico estandarizado para priorizar según la gravedad del cuadro de salud. También disponemos de ambulancia para rescate y traslados dentro y fuera de Pasaje llamando al 098 797 3511.',1),
